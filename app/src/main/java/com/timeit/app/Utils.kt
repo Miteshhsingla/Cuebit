@@ -16,8 +16,10 @@ public class Utils {
         for (i in 1..daysInMonth) {
             calendar.set(Calendar.DAY_OF_MONTH, i)
             val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault())
+            val dayMonth = SimpleDateFormat("MMMM", Locale.getDefault()).format(calendar.time)
+            val year = calendar.get(Calendar.YEAR)
             val isToday = i == currentDayOfMonth
-            days.add(Day(dayOfWeek ?: "", i, isToday))
+            days.add(Day(dayOfWeek ?: "", i, dayMonth, year, isToday))
         }
 
         return days
@@ -33,10 +35,12 @@ public class Utils {
 
         for (i in 0..6) {
             val dayOfWeek = SimpleDateFormat("EEE", Locale.getDefault()).format(calendar.time)
+            val dayMonth = SimpleDateFormat("MMM", Locale.getDefault()).format(calendar.time)
+            val year = calendar.get(Calendar.YEAR)
             val dayNumber = calendar.get(Calendar.DAY_OF_MONTH)
             val isToday = i == 0
 
-            weekDays.add(Day(dayOfWeek, dayNumber, isToday))
+            weekDays.add(Day(dayOfWeek, dayNumber, dayMonth, year, isToday))
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
 
@@ -48,9 +52,15 @@ public class Utils {
         val calendar = startingDay.clone() as Calendar
 
         for (i in 0 until 7) {
+            val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: ""
+            val dayNumber = calendar.get(Calendar.DAY_OF_MONTH)
+            val dayMonth = SimpleDateFormat("MMMM", Locale.getDefault()).format(calendar.time)
+            val year = calendar.get(Calendar.YEAR)
             days.add(Day(
-                dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: "",
-                dayNumber = calendar.get(Calendar.DAY_OF_MONTH),
+                dayOfWeek = dayOfWeek,
+                dayNumber = dayNumber,
+                dayMonth = dayMonth,
+                year = year,
                 isToday = isToday(calendar)
             ))
             calendar.add(Calendar.DAY_OF_MONTH, 1)

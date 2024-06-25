@@ -1,5 +1,6 @@
 package com.timeit.app.Fragments
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -52,8 +53,15 @@ class HomeFragment : Fragment() {
         dateAdapter.setOnItemClickListener { position ->
             selectedDayPosition = position
             dateAdapter.updateSelected(position)
+            val selectedDate = dateAdapter.dateItemList[position]
+            binding.selectedDayText.text = "${selectedDate.dayMonth} ${selectedDate.year}"
         }
-        setCurrentMonth()
+
+        binding.selectedDayText.setOnClickListener {
+            showDatePickerDialog()
+        }
+
+        setCurrentMonth(currentWeekStart)
     }
 
     private fun generateWeekDays(startingDay: Calendar): List<Day> {
@@ -73,15 +81,33 @@ class HomeFragment : Fragment() {
     private fun updateWeek() {
         dateAdapter.updateData(generateWeekDays(currentWeekStart))
         binding.recyclerView.scrollToPosition(0)
+        setCurrentMonth(currentWeekStart)
     }
     private fun getTodayPosition(dates: List<Day>): Int {
         return dates.indexOfFirst { it.isToday }
     }
-    private fun setCurrentMonth() {
-        val calendar = Calendar.getInstance()
-        val monthYearFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+    private fun setCurrentMonth(calendar: Calendar) {
+        val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
         val monthYearText = monthYearFormat.format(calendar.time)
         binding.selectedDayText.text = monthYearText
+    }
+
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(requireContext(), { _, selectedYear, selectedMonth, selectedDay ->
+            val selectedCalendar = Calendar.getInstance()
+            selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
+            currentWeekStart = selectedCalendar
+            updateWeek()
+            val dateText = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(calendar.time)
+            binding.selectedDayText.text = dateText
+        }, year, month, day)
+
+        datePickerDialog.show()
     }
 
     override fun onDestroyView() {
