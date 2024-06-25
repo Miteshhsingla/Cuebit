@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.timeit.app.DataModels.Day
 import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.databinding.ActivityMainBinding
@@ -36,6 +37,37 @@ class MainActivity : AppCompatActivity() {
         setCurrentMonth()
         // Call function to update week view
         updateWeekView()
+
+        binding.fab.setOnClickListener{
+            val dialog = BottomSheetDialog(this)
+
+            // on below line we are inflating a layout file which we have created.
+            val view = layoutInflater.inflate(R.layout.bottom_sheet, null)
+            dialog.setCanceledOnTouchOutside(true);
+
+            // on below line we are creating a variable for our button
+            // which we are using to dismiss our dialog.
+//            val btnClose = view.findViewById<Button>(R.id.idBtnDismiss)
+
+            // on below line we are adding on click listener
+            // for our dismissing the dialog button.
+//            btnClose.setOnClickListener {
+//                // on below line we are calling a dismiss
+//                // method to close our dialog.
+//                dialog.dismiss()
+//            }
+            // below line is use to set cancelable to avoid
+            // closing of dialog box when clicking on the screen.
+            dialog.setCancelable(false)
+
+            // on below line we are setting
+            // content view to our view.
+            dialog.setContentView(view)
+
+            // on below line we are calling
+            // a show method to display a dialog.
+            dialog.show()
+        }
 
     }
 
