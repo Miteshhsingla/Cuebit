@@ -2,17 +2,11 @@ package com.timeit.app
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.isVisible
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.timeit.app.DataModels.Day
-import com.timeit.app.DataModels.TaskDataModel
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.timeit.app.Fragments.HomeFragment
 import com.timeit.app.Fragments.ProfileFragment
 import com.timeit.app.databinding.ActivityMainBinding
-import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 

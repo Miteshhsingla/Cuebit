@@ -7,7 +7,7 @@ import java.util.Locale
 
 public class Utils {
 
-    public fun generateDaysForMonth(): List<Day> {
+    fun generateDaysForMonth(): List<Day> {
         val days = mutableListOf<Day>()
         val calendar = Calendar.getInstance()
         val currentDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
@@ -41,6 +41,27 @@ public class Utils {
         }
 
         return weekDays
+    }
+
+    fun generateDaysForWeek(startingDay: Calendar): List<Day> {
+        val days = mutableListOf<Day>()
+        val calendar = startingDay.clone() as Calendar
+
+        for (i in 0 until 7) {
+            days.add(Day(
+                dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: "",
+                dayNumber = calendar.get(Calendar.DAY_OF_MONTH),
+                isToday = isToday(calendar)
+            ))
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
+        return days
+    }
+
+    private fun isToday(calendar: Calendar): Boolean {
+        val today = Calendar.getInstance()
+        return calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
     }
 
 }

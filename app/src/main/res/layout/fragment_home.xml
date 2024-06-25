@@ -57,12 +57,14 @@
             android:layout_marginRight="20dp"
             >
             <ImageView
+                android:id="@+id/leftArrow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_weekday_chevron_left"
                 android:padding="16dp"
              />
             <ImageView
+                android:id="@+id/rightArrow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_weekday_chevron_right"
@@ -77,8 +79,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="horizontal"
-        android:scrollbars="none" />
+        android:scrollbars="none"
+        tools:listitem="@layout/item_date"/>
 
     <LinearLayout
         android:id="@+id/tasksContainer"
