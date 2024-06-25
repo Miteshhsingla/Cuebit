@@ -23,9 +23,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hey, username"
-            android:paddingStart="20dp"
-            android:textSize="16sp"/>
+            android:text="Hey, username 👋"
+            android:textStyle="bold"
+            android:textSize="20sp"/>
 
 
     </LinearLayout>
@@ -35,13 +35,12 @@
     <TextView
         android:id="@+id/selectedDayText"
         style="@style/TitleSelectedDate"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:padding="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="August 28, 2024"
+        tools:text="August, 2024"
+        android:textSize="20sp"
         android:textFontWeight="600"
-        android:layout_marginStart="24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
     </LinearLayout>
