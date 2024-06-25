@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.timeit.app.DataModels.Day
 import com.timeit.app.R
 
-class DateAdapter(private var dateItemList: List<Day>) : RecyclerView.Adapter<DateAdapter.DateViewHolder>() {
+class DateAdapter(var dateItemList: List<Day>) : RecyclerView.Adapter<DateAdapter.DateViewHolder>() {
 
     private var selectedPosition = -1
     private var onItemClickListener: ((Int) -> Unit)? = null
@@ -28,7 +28,7 @@ class DateAdapter(private var dateItemList: List<Day>) : RecyclerView.Adapter<Da
         holder.dayOfWeekText.text = day.dayOfWeek
         holder.dayNumberText.text = day.dayNumber.toString()
 
-        if (day.isToday) {
+        if (position == selectedPosition) {
             holder.block.setBackgroundResource(R.drawable.selected_day_bg)
             holder.dayOfWeekText.setTextColor(Color.WHITE)
             holder.dayNumberText.setTextColor(Color.WHITE)

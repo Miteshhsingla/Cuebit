@@ -21,7 +21,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var dateAdapter: DateAdapter
     private var selectedDayPosition = -1
-    val dates = Utils.generateDaysForMonth()
+    private var currentWeekStart: Calendar = Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,13 +34,19 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dateAdapter = DateAdapter(dates)
+        dateAdapter = DateAdapter(generateWeekDays(currentWeekStart))
         binding.recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerView.adapter = dateAdapter
+
+        binding.leftArrow.setOnClickListener { showPreviousWeek() }
+        binding.rightArrow.setOnClickListener { showNextWeek() }
+
         val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1
         dateAdapter.updateSelected(today)
 
-        val todayPosition = getTodayPosition(dates)
+        val todayPosition = getTodayPosition(dateAdapter.dateItemList)
+        selectedDayPosition = todayPosition
+        dateAdapter.updateSelected(todayPosition)
         binding.recyclerView.scrollToPosition(todayPosition)
 
         dateAdapter.setOnItemClickListener { position ->
@@ -50,6 +56,24 @@ class HomeFragment : Fragment() {
         setCurrentMonth()
     }
 
+    private fun generateWeekDays(startingDay: Calendar): List<Day> {
+        return Utils.generateDaysForWeek(startingDay)
+    }
+
+    private fun showPreviousWeek() {
+        currentWeekStart.add(Calendar.WEEK_OF_YEAR, -1)
+        updateWeek()
+    }
+
+    private fun showNextWeek() {
+        currentWeekStart.add(Calendar.WEEK_OF_YEAR, 1)
+        updateWeek()
+    }
+
+    private fun updateWeek() {
+        dateAdapter.updateData(generateWeekDays(currentWeekStart))
+        binding.recyclerView.scrollToPosition(0)
+    }
     private fun getTodayPosition(dates: List<Day>): Int {
         return dates.indexOfFirst { it.isToday }
     }
@@ -59,13 +83,6 @@ class HomeFragment : Fragment() {
         val monthYearText = monthYearFormat.format(calendar.time)
         binding.selectedDayText.text = monthYearText
     }
-
-
-
-
-
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()
