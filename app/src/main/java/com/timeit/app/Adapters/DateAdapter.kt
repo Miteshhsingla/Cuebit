@@ -61,6 +61,11 @@ class DateAdapter(private var dateItemList: List<Day>) : RecyclerView.Adapter<Da
         onItemClickListener = listener
     }
 
+    fun updateData(newDateItemList: List<Day>) {
+        dateItemList = newDateItemList
+        notifyDataSetChanged()
+    }
+
     class DateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dayOfWeekText: TextView = itemView.findViewById(R.id.weekdayText)
         val dayNumberText: TextView = itemView.findViewById(R.id.weekdayNumber)
