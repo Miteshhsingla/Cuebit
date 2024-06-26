@@ -7,12 +7,10 @@
     android:gravity="center"
     tools:context=".Fragments.HabitsFragment">
 
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/habitRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="habits fragment"
-        android:textStyle="bold"
-        android:textSize="30dp"
-        android:gravity="center" />
+        android:layout_height="match_parent"
+        tools:listitem="@layout/task_item"/>
 
 </LinearLayout>
