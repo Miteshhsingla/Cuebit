@@ -1,9 +1,11 @@
 package com.timeit.app
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.timeit.app.Fragments.HomeFragment
 import com.timeit.app.Fragments.ProfileFragment
 import com.timeit.app.databinding.ActivityMainBinding
@@ -17,6 +19,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         loadFragment(HomeFragment())
+
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.home -> {
@@ -30,6 +33,13 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        binding.fab.setOnClickListener {
+            val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
+            val dialog = BottomSheetDialog(this)
+            dialog.setContentView(bottomSheetView)
+            dialog.setCanceledOnTouchOutside(true)
+            dialog.show() }
     }
 
     private fun loadFragment(fragment: Fragment) {

@@ -7,6 +7,7 @@
     android:paddingTop="4dp"
     android:orientation="vertical"
     android:paddingBottom="8dp"
+    android:background="@color/bg_white"
     tools:context=".Fragments.HomeFragment">
 
     <LinearLayout
@@ -16,38 +17,90 @@
         android:layout_marginTop="10dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:src="@drawable/ic_launcher_background"
             android:layout_margin="10dp"
             />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hey, username"
-            android:paddingStart="20dp"
-            android:textSize="16sp"/>
+            android:text="Hey, username 👋"
+            android:fontFamily="@font/plusjakarta_semibold"
+            android:textSize="20sp"/>
     </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp">
+
+        <com.google.android.material.tabs.TabLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:tabGravity="fill"
+            app:tabRippleColor="@null"
+            android:background="@drawable/tab_color_selector"
+            app:tabBackground="@drawable/tab_color_selector"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/black"
+            app:tabIndicator="@null"
+            app:tabMode="fixed">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Set Reminder" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Develop a Habit"
+                />
+        </com.google.android.material.tabs.TabLayout>
+    </LinearLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginTop="20dp"
         >
 
-        <TextView
-            android:id="@+id/selectedDayText"
-            style="@style/TitleSelectedDate"
+        <LinearLayout
+            android:id="@+id/monthtext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerInParent="true"
-            android:layout_marginStart="20dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            tools:text="August, 2024" />
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/selectedDayText"
+                style="@style/TitleSelectedDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="20dp"
+                android:fontFamily="@font/plusjakarta_semibold"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:text="August, 2024" />
+            <ImageView
+                android:id="@+id/monthArrow"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:rotation="90"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_weekday_chevron_down"
+                />
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -76,6 +129,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -84,14 +139,6 @@
         android:scrollbars="none"
         tools:listitem="@layout/item_date"/>
 
-    <LinearLayout
-        android:id="@+id/tasksContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:layout_marginTop="20dp"
-        android:layout_below="@id/recyclerView" />
 
     <FrameLayout
         android:id="@+id/fragmentContainer"

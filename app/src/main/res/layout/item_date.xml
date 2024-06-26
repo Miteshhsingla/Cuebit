@@ -8,27 +8,31 @@
     android:padding="10dp"
     android:background="@android:color/transparent">
 
-    <TextView
-        android:id="@+id/weekdayText"
-        style="@style/WeekDayTopText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Sun"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/weekdayText"
+            style="@style/WeekDayTopText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/plusjakarta_medium"
+            android:maxLines="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Sun" />
 
-    <TextView
-        android:id="@+id/weekdayNumber"
-        style="@style/WeekDayTopNumber"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="5"
-        android:layout_marginTop="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/weekdayText" />
+        <TextView
+            android:id="@+id/weekdayNumber"
+            style="@style/WeekDayTopNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/plusjakarta_semibold"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/weekdayText"
+            tools:text="5" />
 
     <ImageView
         android:id="@+id/todayDot"
