@@ -1,10 +1,11 @@
-<!-- res/drawable/tab_background.xml -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Selected state -->
     <item android:state_selected="true">
         <shape android:shape="rectangle">
-            <solid android:color="#0C6478" /> <!-- Background color when selected -->
-            <corners android:radius="20dp" /> <!-- Corner radius -->
+            <gradient
+                android:angle="180"
+                android:startColor="@color/light_purple"
+                android:endColor="@color/dark_purple" />            <corners android:radius="20dp" /> <!-- Corner radius -->
         </shape>
     </item>
     <!-- Default state -->

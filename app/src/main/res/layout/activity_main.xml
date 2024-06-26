@@ -43,6 +43,8 @@
                 android:layout_width="match_parent"
                 android:clickable="false"
                 android:layout_height="wrap_content"
+                app:itemTextColor="@drawable/navigation_view_colored"
+                app:itemIconTint="@drawable/navigation_view_colored"
                 app:menu="@menu/bottom_nav_menu" />
         </FrameLayout>
 
@@ -50,7 +52,9 @@
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+
             android:src="@drawable/ic_baseline_add_24"
+            android:backgroundTint="@color/light_purple"
             app:layout_anchor="@id/bottom_bar"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

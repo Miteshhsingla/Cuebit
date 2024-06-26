@@ -57,7 +57,7 @@ class HomeFragment : Fragment() {
             binding.selectedDayText.text = "${selectedDate.dayMonth} ${selectedDate.year}"
         }
 
-        binding.selectedDayText.setOnClickListener {
+        binding.monthtext.setOnClickListener {
             showDatePickerDialog()
         }
 
