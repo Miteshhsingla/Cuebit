@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:clickable="false"
                 android:layout_height="wrap_content"
-                app:itemTextColor="@drawable/navigation_view_colored"
+                app:itemTextColor="@color/white"
                 app:itemIconTint="@drawable/navigation_view_colored"
                 app:menu="@menu/bottom_nav_menu" />
         </FrameLayout>
