@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity() {
                     1 -> HabitsFragment.newInstance()
                     else -> null
                 }
+
                 fragment?.let {
                     val containerView = bottomSheetView.findViewById<FrameLayout>(R.id.fragmentContainerBottomSheet)
                     if (containerView != null) {
