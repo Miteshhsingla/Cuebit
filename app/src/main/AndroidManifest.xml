@@ -13,6 +13,12 @@
         android:theme="@style/Theme.Fab_Bottom_app_bar"
         tools:targetApi="31">
         <activity
+            android:name=".NameActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AvatarActivity"
+            android:exported="false" />
+        <activity
             android:name=".GetStartedActivity"
             android:exported="true">
             <intent-filter>

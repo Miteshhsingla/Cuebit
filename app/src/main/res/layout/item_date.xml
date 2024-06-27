@@ -30,6 +30,7 @@
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/plusjakarta_semibold"
                 android:textSize="20sp"
+                android:textColor="#a5a5a5"
                 android:layout_gravity="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
