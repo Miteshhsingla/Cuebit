@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentTransaction
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.tabs.TabLayout
 import com.timeit.app.R
@@ -28,11 +29,35 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val tabMode: TabLayout = binding.tabModeFAB
+        OnTabSelection(tabMode)
+
+        binding.crossButton.setOnClickListener{
+            dismiss()
+        }
+
+        if (savedInstanceState == null) {
+            val defaultFragment = AddTaskFragment.newInstance()
+            val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragmentContainerBottomSheet, defaultFragment)
+            transaction.commit()
+        }
+
+        view.post {
+            val bottomSheet = dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            if (bottomSheet != null) {
+                val behavior = BottomSheetBehavior.from(bottomSheet)
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+                behavior.isDraggable = false
+            }
+        }
+    }
+
+    fun OnTabSelection(tabMode:TabLayout){
         try {
             tabMode.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab?) {
                     val fragment = when (tab?.position) {
-                        0 -> TaskFragment.newInstance()
+                        0 -> AddTaskFragment.newInstance()
                         1 -> HabitsFragment.newInstance()
                         else -> null
                     }

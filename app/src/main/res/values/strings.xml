@@ -4,4 +4,13 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tagline">"DAILY NUDGES FOR A BETTER YOU"</string>
     <string name="getStarted">Get Started</string>
+
+    <string name="Title">Title</string>
+    <string name="Description">Description</string>
+    <string name="Category">Category</string>
+    <string name="Date_Time">Date &amp; Time</string>
+    <string name="Frequency">Frequency</string>
+    <string name="CreateTask">Set Reminder</string>
+    <string name="SetAvatar">Choose Avatar</string>
+
 </resources>
