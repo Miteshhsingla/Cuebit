@@ -1,4 +1,4 @@
-package com.timeit.app
+package com.timeit.app.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentTransaction
 import com.timeit.app.Fragments.BottomSheetFragment
 import com.timeit.app.Fragments.HomeFragment
 import com.timeit.app.Fragments.ProfileFragment
+import com.timeit.app.R
 import com.timeit.app.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {

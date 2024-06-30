@@ -14,6 +14,7 @@
         android:paddingBottom="20dp">
 
         <TextView
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Create Task"
@@ -37,6 +38,7 @@
                 android:fontFamily="@font/plusjakarta_semibold"/>
 
             <EditText
+                android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/EditTextField"
@@ -58,6 +60,7 @@
                 android:fontFamily="@font/plusjakarta_semibold"/>
 
             <Spinner
+                android:id="@+id/category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/plusjakarta_medium"
@@ -79,6 +82,7 @@
                 android:textSize="18sp"
                 android:fontFamily="@font/plusjakarta_semibold"/>
             <EditText
+                android:id="@+id/Description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/EditTextField"
@@ -100,6 +104,7 @@
                 android:fontFamily="@font/plusjakarta_semibold"/>
 
             <EditText
+                android:id="@+id/date_and_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/EditTextField"
@@ -121,25 +126,26 @@
                 android:fontFamily="@font/plusjakarta_semibold"/>
 
             <EditText
+                android:id="@+id/Frequency"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/EditTextField"
                 android:hint="Select Frequency"/>
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/getStartedButton"
+        <TextView
+            android:id="@+id/SetReminderButton"
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_margin="20dp"
-            android:backgroundTint="@color/dark_purple"
+            android:background="@drawable/primary_button"
             android:elevation="4dp"
             android:fontFamily="@font/plusjakarta_bold"
             android:gravity="center"
             android:paddingStart="40dp"
             android:paddingEnd="40dp"
             android:text="@string/CreateTask"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textColor="@color/bg_white"
             app:cornerRadius="100dp"/>
     </LinearLayout>
