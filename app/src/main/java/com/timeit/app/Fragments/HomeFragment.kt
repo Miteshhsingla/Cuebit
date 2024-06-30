@@ -12,7 +12,7 @@ import com.google.android.material.tabs.TabLayout
 import com.timeit.app.Adapters.DateAdapter
 import com.timeit.app.DataModels.Day
 import com.timeit.app.R
-import com.timeit.app.Utils
+import com.timeit.Utils.Utils
 import com.timeit.app.databinding.FragmentHomeBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar

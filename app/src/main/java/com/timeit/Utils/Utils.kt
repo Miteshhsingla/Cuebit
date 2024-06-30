@@ -1,4 +1,4 @@
-package com.timeit.app
+package com.timeit.Utils
 
 import com.timeit.app.DataModels.Day
 import java.text.SimpleDateFormat
