@@ -108,6 +108,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/EditTextField"
+                android:focusableInTouchMode="true"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
                 android:hint="Select Date &amp; Time"/>
         </LinearLayout>
 

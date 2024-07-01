@@ -25,7 +25,14 @@ class HomeFragment : Fragment() {
     private val utils = Utils()
     private lateinit var dateAdapter: DateAdapter
     private var selectedDayPosition = -1
+    private lateinit var selectedDate: Day
+    private var listener: OnDateSelectedListener? = null
     private var currentWeekStart: Calendar = Calendar.getInstance()
+    private lateinit var taskFragment: TaskFragment
+
+    interface OnDateSelectedListener {
+        fun onDateSelected(selectedDate: Day)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,9 +45,11 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        selectedDate = utils.getDayFromDate(Calendar.getInstance())
         dateAdapter = DateAdapter(generateWeekDays(currentWeekStart))
         binding.recyclerView.layoutManager = GridLayoutManager(context, 7)
         binding.recyclerView.adapter = dateAdapter
+        taskFragment = TaskFragment.newInstance(selectedDate)
 
         binding.leftArrow.setOnClickListener { showPreviousWeek() }
         binding.rightArrow.setOnClickListener { showNextWeek() }
@@ -56,7 +65,7 @@ class HomeFragment : Fragment() {
         binding.tabMode.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val fragment = when (tab?.position) {
-                    0 -> TaskFragment.newInstance()
+                    0 -> taskFragment
                     1 -> HabitsFragment.newInstance()
                     else -> null
                 }
@@ -76,8 +85,9 @@ class HomeFragment : Fragment() {
         dateAdapter.setOnItemClickListener { position ->
             selectedDayPosition = position
             dateAdapter.updateSelected(position)
-            val selectedDate = dateAdapter.dateItemList[position]
+            selectedDate = dateAdapter.dateItemList[position]
             binding.selectedDayText.text = "${selectedDate.dayMonth} ${selectedDate.year}"
+            listener?.onDateSelected(selectedDate)
         }
 
         binding.monthtext.setOnClickListener {
@@ -88,7 +98,7 @@ class HomeFragment : Fragment() {
 
         if (savedInstanceState == null) {
             val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
-            transaction.replace(R.id.fragmentContainer, TaskFragment.newInstance())
+            transaction.replace(R.id.fragmentContainer, TaskFragment.newInstance(selectedDate))
             transaction.commit()
         }
     }
@@ -139,6 +149,10 @@ class HomeFragment : Fragment() {
         }, year, month, day)
 
         datePickerDialog.show()
+    }
+
+    fun setOnDateSelectedListener(listener: OnDateSelectedListener) {
+        this.listener = listener
     }
 
     override fun onDestroyView() {
