@@ -9,6 +9,7 @@ import com.timeit.Database.TasksDAO
 import com.timeit.app.DataModels.Day
 import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.Fragments.BottomSheetFragment
+import com.timeit.app.Fragments.HabitsFragment
 import com.timeit.app.Fragments.HomeFragment
 import com.timeit.app.Fragments.ProfileFragment
 import com.timeit.app.Fragments.TaskFragment
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity(), HomeFragment.OnDateSelectedListener {
         transaction.commit()
     }
 
-    override fun onDateSelected(selectedDate: Day) {
+    override fun onDateSelected(selectedDate: Day, tabPosition: Int) {
         val tasksDAO = TasksDAO(this.applicationContext)
         val calendar = Calendar.getInstance().apply {
             set(selectedDate.year, getMonthIndex(selectedDate.dayMonth), selectedDate.dayNumber)
@@ -74,12 +75,20 @@ class MainActivity : AppCompatActivity(), HomeFragment.OnDateSelectedListener {
             tasksList = tasksDAO.getTasksForDate(formattedDate)
         }
 
-        val taskFragment = TaskFragment.newInstance(selectedDate)
-        tasksList?.let { taskFragment.updateTasks(it) }
+        if(tabPosition == 0){
+            val taskFragment = TaskFragment.newInstance(selectedDate)
+            tasksList?.let { taskFragment.updateTasks(it) }
 
-        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragmentContainer, taskFragment)
-        transaction.commit()
+            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragmentContainer, taskFragment)
+            transaction.commit()
+        } else {
+            val habitFragment = HabitsFragment.newInstance()
+
+            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragmentContainer, habitFragment)
+            transaction.commit()
+        }
     }
 
     private fun getMonthIndex(monthName: String): Int {

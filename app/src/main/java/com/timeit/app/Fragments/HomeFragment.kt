@@ -30,7 +30,7 @@ class HomeFragment : Fragment() {
     private var currentWeekStart: Calendar = Calendar.getInstance()
 
     interface OnDateSelectedListener {
-        fun onDateSelected(selectedDate: Day)
+        fun onDateSelected(selectedDate: Day, tabPosition: Int)
     }
 
     override fun onCreateView(
@@ -85,7 +85,9 @@ class HomeFragment : Fragment() {
             dateAdapter.updateSelected(position)
             selectedDate = dateAdapter.dateItemList[position]
             binding.selectedDayText.text = "${selectedDate.dayMonth} ${selectedDate.year}"
-            listener?.onDateSelected(selectedDate)
+            if(binding.tabMode.selectedTabPosition == 0){
+                listener?.onDateSelected(selectedDate, binding.tabMode.selectedTabPosition)
+            }
         }
 
         binding.monthtext.setOnClickListener {
