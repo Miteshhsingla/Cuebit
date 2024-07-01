@@ -5,13 +5,22 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import com.timeit.Database.TasksDAO
 import com.timeit.app.DataModels.Day
+import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.Fragments.BottomSheetFragment
 import com.timeit.app.Fragments.HomeFragment
 import com.timeit.app.Fragments.ProfileFragment
 import com.timeit.app.Fragments.TaskFragment
 import com.timeit.app.R
 import com.timeit.app.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.text.DateFormatSymbols
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class MainActivity : AppCompatActivity(), HomeFragment.OnDateSelectedListener {
 
@@ -54,12 +63,28 @@ class MainActivity : AppCompatActivity(), HomeFragment.OnDateSelectedListener {
     }
 
     override fun onDateSelected(selectedDate: Day) {
-        Log.d(TAG, "onDateSelected: $selectedDate")
+        val tasksDAO = TasksDAO(this.applicationContext)
+        val calendar = Calendar.getInstance().apply {
+            set(selectedDate.year, getMonthIndex(selectedDate.dayMonth), selectedDate.dayNumber)
+        }
+        val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+
+        var tasksList: List<TaskDataModel>? = null
+        CoroutineScope(Dispatchers.Main).launch {
+            tasksList = tasksDAO.getTasksForDate(formattedDate)
+        }
+
         val taskFragment = TaskFragment.newInstance(selectedDate)
-        taskFragment.updateTasksForDate(selectedDate, this@MainActivity.applicationContext)
+        tasksList?.let { taskFragment.updateTasks(it) }
+
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragmentContainer, taskFragment)
+        transaction.commit()
     }
 
-    companion object {
-        private const val TAG = "MainActivity"
+    private fun getMonthIndex(monthName: String): Int {
+        val dateFormatSymbols = DateFormatSymbols.getInstance(Locale.getDefault())
+        val monthNames = dateFormatSymbols.months
+        return monthNames.indexOf(monthName)
     }
 }

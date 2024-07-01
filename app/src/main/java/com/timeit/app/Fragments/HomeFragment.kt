@@ -28,7 +28,6 @@ class HomeFragment : Fragment() {
     private lateinit var selectedDate: Day
     private var listener: OnDateSelectedListener? = null
     private var currentWeekStart: Calendar = Calendar.getInstance()
-    private lateinit var taskFragment: TaskFragment
 
     interface OnDateSelectedListener {
         fun onDateSelected(selectedDate: Day)
@@ -49,7 +48,6 @@ class HomeFragment : Fragment() {
         dateAdapter = DateAdapter(generateWeekDays(currentWeekStart))
         binding.recyclerView.layoutManager = GridLayoutManager(context, 7)
         binding.recyclerView.adapter = dateAdapter
-        taskFragment = TaskFragment.newInstance(selectedDate)
 
         binding.leftArrow.setOnClickListener { showPreviousWeek() }
         binding.rightArrow.setOnClickListener { showNextWeek() }
@@ -65,7 +63,7 @@ class HomeFragment : Fragment() {
         binding.tabMode.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val fragment = when (tab?.position) {
-                    0 -> taskFragment
+                    0 -> TaskFragment.newInstance(selectedDate)
                     1 -> HabitsFragment.newInstance()
                     else -> null
                 }

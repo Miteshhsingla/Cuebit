@@ -8,13 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.timeit.Database.TasksDAO
 import com.timeit.app.Adapters.TasksAdapter
 import com.timeit.app.DataModels.Day
 import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.databinding.FragmentTaskBinding
-import com.timeit.app.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +25,7 @@ class TaskFragment : Fragment() {
 
     private var _binding: FragmentTaskBinding? = null
     private val binding get() = _binding!!
-    private var tasksList : MutableList<TaskDataModel> = mutableListOf()
+    private lateinit var tasksList : MutableList<TaskDataModel>
     private lateinit var tasksAdapter: TasksAdapter
     private lateinit var tasksDAO: TasksDAO
     private lateinit var selectedDate: Day
@@ -45,15 +43,12 @@ class TaskFragment : Fragment() {
         selectedDate = arguments?.getSerializable("selectedDate") as? Day
             ?: throw IllegalArgumentException("Argument 'selectedDate' must be provided")
 
+        tasksList = mutableListOf()
         tasksDAO = TasksDAO(requireContext())
 
         initializeAdapter(requireContext())
 
         loadTasksFromDatabase(selectedDate)
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
     override fun onDestroyView() {
@@ -62,11 +57,8 @@ class TaskFragment : Fragment() {
         _binding = null
     }
 
-    fun updateTasksForDate(selectedDate: Day, context: Context) {
-        this.selectedDate = selectedDate
-        tasksDAO = TasksDAO(context)
-        initializeAdapter(context)
-        loadTasksFromDatabase(selectedDate)
+    fun updateTasks(tasksList: List<TaskDataModel>) {
+        tasksAdapter.updateTasks(tasksList)
     }
 
     private fun initializeAdapter(inContext: Context) {
@@ -84,7 +76,13 @@ class TaskFragment : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             tasksList.clear()
             tasksList.addAll(tasksDAO.getTasksForDate(formattedDate))
-            tasksAdapter.notifyDataSetChanged()
+            if (tasksList.isEmpty()) {
+                binding.tasksRecyclerView.visibility = View.GONE
+                tasksAdapter.notifyDataSetChanged()
+            } else {
+                tasksAdapter.notifyDataSetChanged()
+                binding.tasksRecyclerView.visibility = View.VISIBLE
+            }
         }
     }
 

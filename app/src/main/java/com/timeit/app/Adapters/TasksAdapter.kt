@@ -40,4 +40,10 @@ class TasksAdapter(private var tasksList: MutableList<TaskDataModel>, private va
         holder.taskDateTime.text = task.dateAndTime
         holder.dateTimeContainer.isVisible = true
     }
+
+    fun updateTasks(tasksList: List<TaskDataModel>) {
+        this.tasksList.clear()
+        this.tasksList.addAll(tasksList)
+        notifyDataSetChanged()
+    }
 }
