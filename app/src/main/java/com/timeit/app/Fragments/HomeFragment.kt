@@ -89,7 +89,9 @@ class HomeFragment : Fragment() {
         }
 
         // On clicking month name
-        binding!!.monthtext.setOnClickListener { v -> showDatePickerDialog() }
+        binding!!.monthtext.setOnClickListener {
+            showDatePickerDialog()
+        }
 
         // Method to show current month by default
         setCurrentMonth(currentWeekStart)
@@ -160,9 +162,14 @@ class HomeFragment : Fragment() {
                 selectedCalendar[selectedYear, selectedMonth] = selectedDay
                 currentWeekStart = selectedCalendar
                 updateWeek()
-                val dateText =
-                    SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-                        .format(selectedCalendar.time)
+
+                // Update the selected date and load tasks for that date
+                val selectedDate = utils.getDayFromDate(selectedCalendar)
+                this.selectedDate = selectedDate
+                loadTasksFromDatabase(selectedDate)
+
+                // Update the month text
+                val dateText = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedCalendar.time)
                 binding!!.selectedDayText.text = dateText
             }, year, month, day
         )
