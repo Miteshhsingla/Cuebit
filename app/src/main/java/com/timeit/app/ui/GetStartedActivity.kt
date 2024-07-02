@@ -1,4 +1,4 @@
-package com.timeit.app
+package com.timeit.app.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,7 +13,7 @@ class GetStartedActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.getStartedButton.setOnClickListener {
-            var intent = Intent(this,AvatarActivity::class.java);
+            var intent = Intent(this, AvatarActivity::class.java);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
         }

@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.timeit.app.Adapters.HabitsAdapter
 import com.timeit.app.DataModels.HabitDataModel
 import com.timeit.app.DataModels.Habits
-import com.timeit.app.MainActivity
 import com.timeit.app.databinding.FragmentHabitsBinding
 
 class HabitsFragment : Fragment() {

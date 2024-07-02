@@ -2,7 +2,7 @@
     <string name="app_name">TimeIt</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="tagline">"DAILY NUDGES FOR A BETTER YOU"</string>
+    <string name="tagline">"Daily Nudges For a Better You"</string>
     <string name="getStarted">Get Started</string>
 
     <string name="Title">Title</string>
@@ -12,5 +12,10 @@
     <string name="Frequency">Frequency</string>
     <string name="CreateTask">Set Reminder</string>
     <string name="SetAvatar">Choose Avatar</string>
+
+        <string-array name="task_types">
+            <item>Habits</item>
+            <item>Tasks</item>
+        </string-array>
 
 </resources>

@@ -1,11 +1,28 @@
-package com.timeit.app
+package com.timeit.Utils
 
 import com.timeit.app.DataModels.Day
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 public class Utils {
+
+    fun getDayFromDate(date: Calendar): Day {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        val dateString = dateFormat.format(date.time)
+        val calendar = Calendar.getInstance()
+        calendar.time = dateFormat.parse(dateString) ?: Date()
+
+        val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: ""
+        val dayNumber = calendar.get(Calendar.DAY_OF_MONTH)
+        val dayMonth = SimpleDateFormat("MMMM", Locale.getDefault()).format(calendar.time)
+        val year = calendar.get(Calendar.YEAR)
+
+        val isToday = isToday(calendar)
+
+        return Day(dayOfWeek, dayNumber, dayMonth, year, isToday)
+    }
 
     fun generateDaysForMonth(): List<Day> {
         val days = mutableListOf<Day>()

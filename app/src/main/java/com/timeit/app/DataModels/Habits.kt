@@ -8,15 +8,18 @@ object Habits {
     @RequiresApi(Build.VERSION_CODES.O)
     val habits = listOf(
         HabitDataModel(
-            habitName = "Morning Jog",
+            habitName = "Take a Walk",
             image = R.drawable.bottom_nav_bg
         ),
         HabitDataModel(
-            habitName = "Read a Book",
+            habitName = "Walk a Dog",
             image = R.drawable.bottom_nav_bg
         ),
         HabitDataModel(
             habitName = "Drink Water",
+            image = R.drawable.bottom_nav_bg
+        ),HabitDataModel(
+            habitName = "Workout",
             image = R.drawable.bottom_nav_bg
         )
     )

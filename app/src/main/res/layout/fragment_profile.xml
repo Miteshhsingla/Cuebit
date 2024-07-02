@@ -4,73 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:background="@color/bg_white"
     tools:context=".Fragments.ProfileFragment">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-      >
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:fontFamily="@font/plusjakarta_bold"
-            android:text="Enter your Name"
-            android:textAlignment="center"
-            android:textSize="24sp" />
-    </LinearLayout>
-
-
-
-    <LinearLayout
-        android:id="@+id/profile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/editfield_bg"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:layout_margin="10dp"
-
-        android:padding="20dp">
-
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/avatar3" />
-
-        <EditText
-            android:id="@+id/nameField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@color/bg_white"
-            android:fontFamily="@font/plusjakarta_medium"
-            android:hint="What should we call you?"
-            android:padding="12dp"
-            android:textAlignment="center" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/continueButton"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_margin="20dp"
-            android:backgroundTint="@color/dark_purple"
-            android:elevation="4dp"
-            android:fontFamily="@font/plusjakarta_bold"
-            android:gravity="center"
-            android:paddingStart="40dp"
-            android:paddingEnd="40dp"
-            android:text="Continue"
-            android:textColor="@color/bg_white"
-            android:textSize="16sp"
-            app:cornerRadius="100dp" />
-
-
-    </LinearLayout>
 
 
 

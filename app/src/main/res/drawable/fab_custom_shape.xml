@@ -12,22 +12,22 @@
         </shape>
     </item>
     <item
-        android:left="8dp"
-        android:right="8dp">
+        android:left="12dp"
+        android:right="12dp">
         <shape android:shape="line">
             <stroke
-                android:width="2dp"
+                android:width="3dp"
                 android:color="#ffffff" />
         </shape>
     </item>
     <item
-        android:left="8dp"
-        android:right="8dp">
+        android:left="12dp"
+        android:right="12dp">
         <rotate
             android:fromDegrees="90">
             <shape android:shape="line">
                 <stroke
-                    android:width="2dp"
+                    android:width="3dp"
                     android:color="#ffffff" />
             </shape>
         </rotate>

@@ -39,5 +39,9 @@
         <item name="android:paddingBottom">10dp</item>
         <item name="android:layout_marginTop">6dp</item>
     </style>
+    <style name="CustomFabStyle" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="background">@drawable/fab_custom_shape</item>
+    </style>
+
 
 </resources>
