@@ -21,7 +21,7 @@ class HabitsAdapter(var habitsList: List<HabitDataModel>, var context: Context):
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): habitViewHolder {
         val view: View = LayoutInflater.from(parent.context)
             .inflate(R.layout.task_item, parent, false)
-        return HabitsAdapter.habitViewHolder(view)
+        return habitViewHolder(view)
     }
 
     override fun getItemCount(): Int {

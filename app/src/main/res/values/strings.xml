@@ -13,4 +13,9 @@
     <string name="CreateTask">Set Reminder</string>
     <string name="SetAvatar">Choose Avatar</string>
 
+        <string-array name="task_types">
+            <item>Habits</item>
+            <item>Tasks</item>
+        </string-array>
+
 </resources>

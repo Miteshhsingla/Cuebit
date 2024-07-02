@@ -5,8 +5,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import com.timeit.app.DataModels.TaskDataModel
-import org.json.JSONArray
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TasksDAO(context: Context?) {
     private val database: SQLiteDatabase
@@ -22,66 +22,98 @@ class TasksDAO(context: Context?) {
     }
 
     // Insert a task
-    fun insertTask(task: TaskDataModel) {
-        val values = ContentValues()
-        values.put(MyDBHelper.COLUMN_ID, task.id)
-        values.put(MyDBHelper.COLUMN_TITLE, task.title)
-        values.put(MyDBHelper.COLUMN_DESCRIPTION, task.description)
-        values.put(MyDBHelper.COLUMN_CATEGORY, task.category)
-        values.put(MyDBHelper.COLUMN_DATETIME, task.dateAndTime)
-        values.put(MyDBHelper.COLUMN_FREQUENCY, task.frequency)
-        database.insert(MyDBHelper.TABLE_TASKS, null, values)
+    suspend fun insertTask(task: TaskDataModel) {
+        withContext(Dispatchers.IO) {
+            val values = ContentValues()
+            values.put(MyDBHelper.COLUMN_ID, task.id)
+            values.put(MyDBHelper.COLUMN_TITLE, task.title)
+            values.put(MyDBHelper.COLUMN_DESCRIPTION, task.description)
+            values.put(MyDBHelper.COLUMN_CATEGORY, task.category)
+            values.put(MyDBHelper.COLUMN_DATETIME, task.dateAndTime)
+            values.put(MyDBHelper.COLUMN_FREQUENCY, task.frequency)
+            database.insert(MyDBHelper.TABLE_TASKS, null, values)
+        }
     }
 
     // Retrieve a task
     @SuppressLint("Range")
-    fun getTask(id: String): TaskDataModel? {
-        val cursor = database.query(
-            MyDBHelper.TABLE_TASKS,
-            null, MyDBHelper.COLUMN_ID + " = ?", arrayOf<String>(id), null, null, null
-        )
-        if (cursor != null && cursor.moveToFirst()) {
-            val title = cursor.getString(cursor.getColumnIndex(MyDBHelper.COLUMN_TITLE))
-            val description =
-                cursor.getString(cursor.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION))
-            val datetime =
-                cursor.getString(cursor.getColumnIndex(MyDBHelper.COLUMN_DATETIME))
-            val frequency =
-                cursor.getString(cursor.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
-            val category =
-                cursor.getString(cursor.getColumnIndex(MyDBHelper.COLUMN_CATEGORY))
-
-            cursor.close()
-            return TaskDataModel(id, title, description, category, datetime, frequency)
+    suspend fun getTask(id: String): TaskDataModel? {
+        return withContext(Dispatchers.IO) {
+            var task: TaskDataModel? = null
+            val cursor = database.query(
+                MyDBHelper.TABLE_TASKS,
+                null,
+                "${MyDBHelper.COLUMN_ID} = ?",
+                arrayOf(id),
+                null,
+                null,
+                null
+            )
+            cursor.use {
+                if (it != null && it.moveToFirst()) {
+                    task = TaskDataModel(
+                        id,
+                        it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TITLE)),
+                        it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION)),
+                        it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY)),
+                        it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME)),
+                        it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
+                    )
+                }
+            }
+            task
         }
-        cursor?.close()
-        return null
-    }
-
-    // Method to save a user's name
-    fun saveUserName(name: String) {
-        val db = database
-        val values = ContentValues().apply {
-            put(MyDBHelper.COLUMN_USER_NAME, name)
-        }
-        db.replace(MyDBHelper.TABLE_USERS, null, values)  // Replaces the existing row if it exists
-        db.close()
-    }
-
-    // Method to retrieve a user's name
-    fun getUserName(): String? {
-        val db = database
-        val cursor = db.query(MyDBHelper.TABLE_USERS, arrayOf(MyDBHelper.COLUMN_USER_NAME), null, null, null, null, null)
-        var userName: String? = null
-        if (cursor.moveToFirst()) {
-            userName = cursor.getString(cursor.getColumnIndexOrThrow(MyDBHelper.COLUMN_USER_NAME))
-        }
-        cursor.close()
-        db.close()
-        return userName
     }
 
 
+    // Retrieve all tasks
+    @SuppressLint("Range")
+    suspend fun getAllTasks(): List<TaskDataModel> {
+        return withContext(Dispatchers.IO) {
+            val tasksList = mutableListOf<TaskDataModel>()
+            val cursor = database.query(
+                MyDBHelper.TABLE_TASKS,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+            cursor.use {
+                while (it.moveToNext()) {
+                    val id = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_ID))
+                    val title = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TITLE))
+                    val description = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION))
+                    val datetime = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME))
+                    val frequency = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
+                    val category = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY))
+                    tasksList.add(TaskDataModel(id, title, description, category, datetime, frequency))
+                }
+            }
+            tasksList
+        }
+    }
 
+    // Retrieve tasks for a specific date
+    @SuppressLint("Range")
+    suspend fun getTasksForDate(date: String): List<TaskDataModel> {
+        return withContext(Dispatchers.IO) {
+            val tasksList = mutableListOf<TaskDataModel>()
+            val query = "SELECT * FROM ${MyDBHelper.TABLE_TASKS} WHERE SUBSTR(${MyDBHelper.COLUMN_DATETIME}, 1, 10) = ?"
+            val cursor = database.rawQuery(query, arrayOf(date))
+            cursor.use {
+                while (it.moveToNext()) {
+                    val id = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_ID))
+                    val title = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TITLE))
+                    val description = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION))
+                    val datetime = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME))
+                    val frequency = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
+                    val category = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY))
+                    tasksList.add(TaskDataModel(id, title, description, category, datetime, frequency))
+                }
+            }
+            tasksList
+        }
+    }
 }
-
