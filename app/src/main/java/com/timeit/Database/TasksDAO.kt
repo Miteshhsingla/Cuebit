@@ -58,6 +58,29 @@ class TasksDAO(context: Context?) {
         return null
     }
 
+    // Method to save a user's name
+    fun saveUserName(name: String) {
+        val db = database
+        val values = ContentValues().apply {
+            put(MyDBHelper.COLUMN_USER_NAME, name)
+        }
+        db.replace(MyDBHelper.TABLE_USERS, null, values)  // Replaces the existing row if it exists
+        db.close()
+    }
+
+    // Method to retrieve a user's name
+    fun getUserName(): String? {
+        val db = database
+        val cursor = db.query(MyDBHelper.TABLE_USERS, arrayOf(MyDBHelper.COLUMN_USER_NAME), null, null, null, null, null)
+        var userName: String? = null
+        if (cursor.moveToFirst()) {
+            userName = cursor.getString(cursor.getColumnIndexOrThrow(MyDBHelper.COLUMN_USER_NAME))
+        }
+        cursor.close()
+        db.close()
+        return userName
+    }
+
 
 
 }

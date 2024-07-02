@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.tabs.TabLayout
+import com.timeit.Database.MyDBHelper
+import com.timeit.Database.TasksDAO
 import com.timeit.app.Adapters.DateAdapter
 import com.timeit.app.DataModels.Day
 import com.timeit.app.R
@@ -26,7 +28,8 @@ class HomeFragment : Fragment() {
     private lateinit var dateAdapter: DateAdapter
     private var selectedDayPosition = -1
     private var currentWeekStart: Calendar = Calendar.getInstance()
-
+    private lateinit var taskDao: TasksDAO
+    private lateinit var username : String
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -90,6 +93,13 @@ class HomeFragment : Fragment() {
             val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
             transaction.replace(R.id.fragmentContainer, TaskFragment.newInstance())
             transaction.commit()
+        }
+
+        taskDao = TasksDAO(activity)
+        if (taskDao != null) {
+            username = taskDao.getUserName().toString()
+            if(!username.isEmpty())
+                binding.greetingUsername.text = "Hey, $username"
         }
     }
 
