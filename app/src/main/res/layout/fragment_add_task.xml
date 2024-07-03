@@ -140,16 +140,15 @@
         <TextView
             android:id="@+id/SetReminderButton"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:background="@drawable/primary_button"
             android:elevation="4dp"
             android:fontFamily="@font/plusjakarta_bold"
             android:gravity="center"
-            android:paddingStart="40dp"
-            android:paddingEnd="40dp"
+            android:padding="16dp"
             android:text="@string/CreateTask"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textColor="@color/bg_white"
             app:cornerRadius="100dp"/>
     </LinearLayout>
