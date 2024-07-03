@@ -98,6 +98,7 @@ class HomeFragment : Fragment() {
 //        loadTasksFromDatabase(selectedDate)
 
         // Initialize Spinner
+        // Initialize Spinner
         val spinner = binding!!.taskType
         val adapter = ArrayAdapter.createFromResource(
             requireContext(),
@@ -108,7 +109,7 @@ class HomeFragment : Fragment() {
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
-                view: View,
+                view: View?,
                 position: Int,
                 id: Long
             ) {
@@ -159,18 +160,28 @@ class HomeFragment : Fragment() {
         val datePickerDialog = DatePickerDialog(requireContext(),
             { view: DatePicker?, selectedYear: Int, selectedMonth: Int, selectedDay: Int ->
                 val selectedCalendar = Calendar.getInstance()
-                selectedCalendar[selectedYear, selectedMonth] = selectedDay
+                selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
                 currentWeekStart = selectedCalendar
                 updateWeek()
 
                 // Update the selected date and load tasks for that date
                 val selectedDate = utils.getDayFromDate(selectedCalendar)
                 this.selectedDate = selectedDate
+
+                // Highlight the selected date in the DateAdapter
+                val position = dateAdapter?.dateItemList?.indexOfFirst {
+                    it.dayNumber == selectedDay && it.dayMonth == DateFormatSymbols().months[selectedMonth] && it.year == selectedYear
+                } ?: -1
+                if (position != -1) {
+                    dateAdapter?.updateSelected(position)
+                    binding?.recyclerView?.scrollToPosition(position)
+                }
+
                 loadTasksFromDatabase(selectedDate)
 
                 // Update the month text
                 val dateText = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedCalendar.time)
-                binding!!.selectedDayText.text = dateText
+                binding?.selectedDayText?.text = dateText
             }, year, month, day
         )
         datePickerDialog.show()
