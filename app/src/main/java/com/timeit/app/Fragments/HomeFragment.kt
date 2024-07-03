@@ -48,6 +48,11 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Set currentWeekStart to the start of the week (Monday)
+        while (currentWeekStart.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            currentWeekStart.add(Calendar.DAY_OF_MONTH, -1)
+        }
+
         // Calendar Adapter setup
         selectedDate = utils.getDayFromDate(Calendar.getInstance())
         dateAdapter = DateAdapter(generateWeekDays(currentWeekStart))
@@ -98,7 +103,6 @@ class HomeFragment : Fragment() {
 //        loadTasksFromDatabase(selectedDate)
 
         // Initialize Spinner
-        // Initialize Spinner
         val spinner = binding!!.taskType
         val adapter = ArrayAdapter.createFromResource(
             requireContext(),
@@ -137,6 +141,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateWeek() {
+
+        // Adjust currentWeekStart to the start of the week (Monday)
+        while (currentWeekStart.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            currentWeekStart.add(Calendar.DAY_OF_MONTH, -1)
+        }
+
         dateAdapter!!.updateData(generateWeekDays(currentWeekStart))
         binding!!.recyclerView.scrollToPosition(0)
         setCurrentMonth(currentWeekStart)
@@ -161,6 +171,12 @@ class HomeFragment : Fragment() {
             { view: DatePicker?, selectedYear: Int, selectedMonth: Int, selectedDay: Int ->
                 val selectedCalendar = Calendar.getInstance()
                 selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
+
+                // Adjust selectedCalendar to the start of the week (Monday)
+                while (selectedCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+                    selectedCalendar.add(Calendar.DAY_OF_MONTH, -1)
+                }
+
                 currentWeekStart = selectedCalendar
                 updateWeek()
 
@@ -224,6 +240,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        tasksDAO?.close()
         binding = null
     }
 }

@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Function loadFragment is to set the view of the selected fragment
     private fun loadFragment(fragment: Fragment) {
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.fragmentContainerView, fragment)
