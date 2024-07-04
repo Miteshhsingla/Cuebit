@@ -1,13 +1,10 @@
 package com.timeit.app.ui
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import com.timeit.Database.MyDBHelper
-import com.timeit.Database.TasksDAO
 import com.timeit.app.databinding.ActivityNameBinding
 
 class NameActivity : AppCompatActivity() {
@@ -35,7 +32,7 @@ class NameActivity : AppCompatActivity() {
                 editor.putString("userName", name)
                 editor.apply()
 
-                var intent = Intent(this, MainActivity::class.java);
+                val intent = Intent(this, MainActivity::class.java)
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 startActivity(intent)
             }
