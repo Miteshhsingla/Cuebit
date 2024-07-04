@@ -1,6 +1,7 @@
 package com.timeit.app.Fragments
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,6 +38,8 @@ class HomeFragment : Fragment() {
     private var tasksList: MutableList<TaskDataModel>? = null
     private var tasksDAO: TasksDAO? = null
     private var tasksAdapter: TasksAdapter? = null
+    private var userName: String = ""
+    private var userImage: Int = 0
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,6 +50,20 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Fetching name stored in shared preference
+        val sharedPreferences = requireContext().getSharedPreferences("com.timeit.app", Context.MODE_PRIVATE)
+        if (sharedPreferences != null) {
+            userName = sharedPreferences.getString("userName", "").toString()
+            userImage = sharedPreferences.getInt("selectedAvatar",0)
+            binding?.greetingUsername?.text = "Hey, " + userName + " 👋"
+            binding?.userImage?.setImageResource(userImage)
+        }
+
+        // Set currentWeekStart to the start of the week (Monday)
+        while (currentWeekStart.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            currentWeekStart.add(Calendar.DAY_OF_MONTH, -1)
+        }
 
         // Calendar Adapter setup
         selectedDate = utils.getDayFromDate(Calendar.getInstance())
@@ -108,7 +125,7 @@ class HomeFragment : Fragment() {
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
-                view: View,
+                view: View?,
                 position: Int,
                 id: Long
             ) {
@@ -136,6 +153,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateWeek() {
+
+        // Adjust currentWeekStart to the start of the week (Monday)
+        while (currentWeekStart.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            currentWeekStart.add(Calendar.DAY_OF_MONTH, -1)
+        }
+
         dateAdapter!!.updateData(generateWeekDays(currentWeekStart))
         binding!!.recyclerView.scrollToPosition(0)
         setCurrentMonth(currentWeekStart)
@@ -159,18 +182,34 @@ class HomeFragment : Fragment() {
         val datePickerDialog = DatePickerDialog(requireContext(),
             { view: DatePicker?, selectedYear: Int, selectedMonth: Int, selectedDay: Int ->
                 val selectedCalendar = Calendar.getInstance()
-                selectedCalendar[selectedYear, selectedMonth] = selectedDay
+                selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
+
+                // Adjust selectedCalendar to the start of the week (Monday)
+                while (selectedCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+                    selectedCalendar.add(Calendar.DAY_OF_MONTH, -1)
+                }
+
                 currentWeekStart = selectedCalendar
                 updateWeek()
 
                 // Update the selected date and load tasks for that date
                 val selectedDate = utils.getDayFromDate(selectedCalendar)
                 this.selectedDate = selectedDate
+
+                // Highlight the selected date in the DateAdapter
+                val position = dateAdapter?.dateItemList?.indexOfFirst {
+                    it.dayNumber == selectedDay && it.dayMonth == DateFormatSymbols().months[selectedMonth] && it.year == selectedYear
+                } ?: -1
+                if (position != -1) {
+                    dateAdapter?.updateSelected(position)
+                    binding?.recyclerView?.scrollToPosition(position)
+                }
+
                 loadTasksFromDatabase(selectedDate)
 
                 // Update the month text
                 val dateText = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedCalendar.time)
-                binding!!.selectedDayText.text = dateText
+                binding?.selectedDayText?.text = dateText
             }, year, month, day
         )
         datePickerDialog.show()
@@ -213,6 +252,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        tasksDAO?.close()
         binding = null
     }
 }

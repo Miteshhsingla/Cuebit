@@ -28,6 +28,7 @@
         android:padding="20dp">
 
         <ImageView
+            android:id="@+id/userImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@drawable/avatar3" />
@@ -41,7 +42,8 @@
             android:fontFamily="@font/plusjakarta_medium"
             android:hint="What should we call you?"
             android:padding="12dp"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:inputType="textPersonName" />
 
         <TextView
             android:id="@+id/continueButton"

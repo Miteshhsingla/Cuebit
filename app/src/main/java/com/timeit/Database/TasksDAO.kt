@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 class TasksDAO(context: Context?) {
     private val database: SQLiteDatabase
     private val dbHelper: MyDBHelper
+    private val contentValues: ContentValues = ContentValues()
 
     init {
         dbHelper = MyDBHelper(context)
@@ -24,14 +25,16 @@ class TasksDAO(context: Context?) {
     // Insert a task
     suspend fun insertTask(task: TaskDataModel) {
         withContext(Dispatchers.IO) {
-            val values = ContentValues()
-            values.put(MyDBHelper.COLUMN_ID, task.id)
-            values.put(MyDBHelper.COLUMN_TITLE, task.title)
-            values.put(MyDBHelper.COLUMN_DESCRIPTION, task.description)
-            values.put(MyDBHelper.COLUMN_CATEGORY, task.category)
-            values.put(MyDBHelper.COLUMN_DATETIME, task.dateAndTime)
-            values.put(MyDBHelper.COLUMN_FREQUENCY, task.frequency)
-            database.insert(MyDBHelper.TABLE_TASKS, null, values)
+            contentValues.clear()
+            contentValues.apply {
+                put(MyDBHelper.COLUMN_ID, task.id)
+                put(MyDBHelper.COLUMN_TITLE, task.title)
+                put(MyDBHelper.COLUMN_DESCRIPTION, task.description)
+                put(MyDBHelper.COLUMN_CATEGORY, task.category)
+                put(MyDBHelper.COLUMN_DATETIME, task.dateAndTime)
+                put(MyDBHelper.COLUMN_FREQUENCY, task.frequency)
+            }
+            database.insert(MyDBHelper.TABLE_TASKS, null, contentValues)
         }
     }
 
@@ -39,7 +42,6 @@ class TasksDAO(context: Context?) {
     @SuppressLint("Range")
     suspend fun getTask(id: String): TaskDataModel? {
         return withContext(Dispatchers.IO) {
-            var task: TaskDataModel? = null
             val cursor = database.query(
                 MyDBHelper.TABLE_TASKS,
                 null,
@@ -51,7 +53,7 @@ class TasksDAO(context: Context?) {
             )
             cursor.use {
                 if (it != null && it.moveToFirst()) {
-                    task = TaskDataModel(
+                    TaskDataModel(
                         id,
                         it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TITLE)),
                         it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION)),
@@ -59,12 +61,10 @@ class TasksDAO(context: Context?) {
                         it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME)),
                         it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
                     )
-                }
+                } else null
             }
-            task
         }
     }
-
 
     // Retrieve all tasks
     @SuppressLint("Range")
@@ -82,13 +82,16 @@ class TasksDAO(context: Context?) {
             )
             cursor.use {
                 while (it.moveToNext()) {
-                    val id = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_ID))
-                    val title = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TITLE))
-                    val description = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION))
-                    val datetime = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME))
-                    val frequency = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
-                    val category = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY))
-                    tasksList.add(TaskDataModel(id, title, description, category, datetime, frequency))
+                    tasksList.add(
+                        TaskDataModel(
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_ID)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TITLE)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
+                        )
+                    )
                 }
             }
             tasksList
@@ -104,13 +107,16 @@ class TasksDAO(context: Context?) {
             val cursor = database.rawQuery(query, arrayOf(date))
             cursor.use {
                 while (it.moveToNext()) {
-                    val id = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_ID))
-                    val title = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TITLE))
-                    val description = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION))
-                    val datetime = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME))
-                    val frequency = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
-                    val category = it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY))
-                    tasksList.add(TaskDataModel(id, title, description, category, datetime, frequency))
+                    tasksList.add(
+                        TaskDataModel(
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_ID)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TITLE)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
+                        )
+                    )
                 }
             }
             tasksList
