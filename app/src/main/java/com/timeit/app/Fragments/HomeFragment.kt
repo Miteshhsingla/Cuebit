@@ -1,6 +1,7 @@
 package com.timeit.app.Fragments
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,6 +38,8 @@ class HomeFragment : Fragment() {
     private var tasksList: MutableList<TaskDataModel>? = null
     private var tasksDAO: TasksDAO? = null
     private var tasksAdapter: TasksAdapter? = null
+    private var userName: String = ""
+    private var userImage: Int = 0
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,6 +50,15 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Fetching name stored in shared preference
+        val sharedPreferences = requireContext().getSharedPreferences("com.timeit.app", Context.MODE_PRIVATE)
+        if (sharedPreferences != null) {
+            userName = sharedPreferences.getString("userName", "").toString()
+            userImage = sharedPreferences.getInt("selectedAvatar",0)
+            binding?.greetingUsername?.text = "Hey, " + userName + " 👋"
+            binding?.userImage?.setImageResource(userImage)
+        }
 
         // Set currentWeekStart to the start of the week (Monday)
         while (currentWeekStart.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {

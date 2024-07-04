@@ -1,10 +1,12 @@
 package com.timeit.app.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.timeit.app.R
 import com.timeit.app.databinding.ActivityAvatarBinding
 
 
@@ -18,12 +20,12 @@ class AvatarActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-        setClickListener(binding.av1);
-        setClickListener(binding.av2);
-        setClickListener(binding.av3);
-        setClickListener(binding.av4);
-        setClickListener(binding.av5);
-        setClickListener(binding.av6);
+        setClickListener(binding.av1, R.drawable.avatar1);
+        setClickListener(binding.av2, R.drawable.avatar2);
+        setClickListener(binding.av3, R.drawable.avatar3);
+        setClickListener(binding.av4, R.drawable.avatar4);
+        setClickListener(binding.av5, R.drawable.avatar3);
+        setClickListener(binding.av6, R.drawable.avatar1);
 
 
         binding.chooseAvatarButton.setOnClickListener {
@@ -33,9 +35,18 @@ class AvatarActivity : AppCompatActivity() {
         }
     }
 
-    private fun setClickListener(image: ImageView) {
-        image.setOnClickListener(View.OnClickListener
-        { binding.preview.setImageDrawable(image.getDrawable()) })
-
+    private fun setClickListener(image: ImageView, resourceId: Int) {
+        image.setOnClickListener(View.OnClickListener{
+            binding.preview.setImageDrawable(image.getDrawable())
+            saveSelectedAvatar(resourceId)
+        })
     }
+
+    private fun saveSelectedAvatar(resourceId: Int) {
+        val sharedPreferences = getSharedPreferences("com.timeit.app", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putInt("selectedAvatar", resourceId)
+        editor.apply()
+    }
+
 }
