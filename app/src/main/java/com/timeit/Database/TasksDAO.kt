@@ -3,7 +3,9 @@ package com.timeit.Database
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import com.timeit.app.DataModels.Category
 import com.timeit.app.DataModels.TaskDataModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -103,7 +105,8 @@ class TasksDAO(context: Context?) {
     suspend fun getTasksForDate(date: String): List<TaskDataModel> {
         return withContext(Dispatchers.IO) {
             val tasksList = mutableListOf<TaskDataModel>()
-            val query = "SELECT * FROM ${MyDBHelper.TABLE_TASKS} WHERE SUBSTR(${MyDBHelper.COLUMN_DATETIME}, 1, 10) = ?"
+            val query =
+                "SELECT * FROM ${MyDBHelper.TABLE_TASKS} WHERE SUBSTR(${MyDBHelper.COLUMN_DATETIME}, 1, 10) = ?"
             val cursor = database.rawQuery(query, arrayOf(date))
             cursor.use {
                 while (it.moveToNext()) {
@@ -122,4 +125,79 @@ class TasksDAO(context: Context?) {
             tasksList
         }
     }
+
+    suspend fun deleteTask(id: String) {
+        withContext(Dispatchers.IO) {
+            database.delete(MyDBHelper.TABLE_TASKS, "${MyDBHelper.COLUMN_ID} = ?", arrayOf(id))
+        }
+    }
+
+    suspend fun addCategory(categoryName: String, categoryId: String) {
+        withContext(Dispatchers.IO) {
+
+            val db = database
+            val values = ContentValues().apply {
+                put(MyDBHelper.COLUMN_CATEGORY_ID, categoryId)
+                put(MyDBHelper.COLUMN_CATEGORY_NAME, categoryName)
+            }
+            db.insert(MyDBHelper.TABLE_CATEGORIES, null, values)
+        }
+    }
+
+    suspend fun fetchAllCategories(): MutableList<Category> {
+        return withContext(Dispatchers.IO) {
+
+            val categories = mutableListOf<Category>()
+            val db = database
+            val cursor: Cursor = db.rawQuery("SELECT * FROM ${MyDBHelper.TABLE_CATEGORIES}", null)
+            cursor.use {
+                if (it.moveToFirst()) {
+                    do {
+                        val categoryId =
+                            it.getString(it.getColumnIndexOrThrow(MyDBHelper.COLUMN_CATEGORY_ID))
+                        val categoryName =
+                            it.getString(it.getColumnIndexOrThrow(MyDBHelper.COLUMN_CATEGORY_NAME))
+                        categories.add(Category(categoryId, categoryName))
+                    } while (it.moveToNext())
+                }
+            }
+            categories
+        }
+    }
+
+    suspend fun isCategoryExist(categoryName: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val db = dbHelper.readableDatabase
+            val cursor = db.query(
+                MyDBHelper.TABLE_CATEGORIES,
+                arrayOf(MyDBHelper.COLUMN_CATEGORY_NAME),
+                "${MyDBHelper.COLUMN_CATEGORY_NAME} = ?",
+                arrayOf(categoryName),
+                null,
+                null,
+                null
+            )
+            val exists = cursor.count > 0
+            cursor.close()
+            exists
+        }
+    }
+
+    suspend fun deleteCategory(categoryId: String) {
+        withContext(Dispatchers.IO) {
+
+            val db = database
+             db.delete(
+                MyDBHelper.TABLE_CATEGORIES,
+                "${MyDBHelper.COLUMN_CATEGORY_ID} = ?",
+                arrayOf(categoryId)
+            )
+        }
+    }
+
 }
+
+
+
+
+

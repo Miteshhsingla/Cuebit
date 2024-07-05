@@ -35,7 +35,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/weekdayText"
-                tools:text="5" />
+                tools:text="25" />
 
             <ImageView
                 android:id="@+id/todayDot"

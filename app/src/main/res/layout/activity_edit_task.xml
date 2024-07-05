@@ -5,23 +5,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_white"
-    tools:context=".Fragments.AddTaskFragment">
+    tools:context=".EditTaskActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingBottom="20dp">
-
-        <TextView
-
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create Task"
-            android:textSize="20sp"
             android:padding="16dp"
-            android:gravity="center"
-            android:fontFamily="@font/plusjakarta_bold"/>
+            >
+
+            <ImageView
+                android:id="@+id/arrowImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="63dp"
+                android:padding="24dp"
+                android:src="@drawable/ic_weekday_chevron_left"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/textViewUpdateTask"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textViewUpdateTask"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/plusjakarta_bold"
+                android:gravity="center"
+                android:text="Update Task"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -129,12 +155,11 @@
                 android:textSize="18sp"
                 android:fontFamily="@font/plusjakarta_semibold"/>
 
-            <Spinner
+            <EditText
                 android:id="@+id/Frequency"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/plusjakarta_medium"
-                android:layout_marginTop="10dp"
+                style="@style/EditTextField"
                 android:hint="Select Frequency"/>
         </LinearLayout>
 
@@ -148,7 +173,7 @@
             android:fontFamily="@font/plusjakarta_bold"
             android:gravity="center"
             android:padding="16dp"
-            android:text="@string/CreateTask"
+            android:text="@string/UpdateTask"
             android:textSize="16sp"
             android:textColor="@color/bg_white"
             app:cornerRadius="100dp"/>

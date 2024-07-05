@@ -1,6 +1,10 @@
 package com.timeit.app.Fragments
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,13 +13,19 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.DatePicker
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.timeit.Database.TasksDAO
 import com.timeit.Utils.Utils
+import com.timeit.app.Adapters.CategoryAdapter
 import com.timeit.app.Adapters.DateAdapter
 import com.timeit.app.Adapters.TasksAdapter
+import com.timeit.app.DataModels.Category
 import com.timeit.app.DataModels.Day
 import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.R
@@ -27,6 +37,7 @@ import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.UUID
 
 class HomeFragment : Fragment() {
     private var binding: FragmentHomeBinding? = null
@@ -38,6 +49,9 @@ class HomeFragment : Fragment() {
     private var tasksList: MutableList<TaskDataModel>? = null
     private var tasksDAO: TasksDAO? = null
     private var tasksAdapter: TasksAdapter? = null
+    private lateinit var categoryAdapter : CategoryAdapter
+    private lateinit var tasksrecycler: RecyclerView
+    private lateinit var categoryList : MutableList<Category>
     private var userName: String = ""
     private var userImage: Int = 0
     override fun onCreateView(
@@ -88,9 +102,12 @@ class HomeFragment : Fragment() {
         binding!!.recyclerView.scrollToPosition(todayPosition)
 
         // Set adapter for showing tasks in RecyclerView
+        tasksrecycler = binding!!.recylerViewTasks
         tasksAdapter = TasksAdapter(tasksList!!, requireContext())
         binding!!.recylerViewTasks.layoutManager = LinearLayoutManager(context)
         binding!!.recylerViewTasks.adapter = tasksAdapter
+        setupSwipeToDelete()
+
 
         // On click for clicking on date in the calendar
         dateAdapter!!.setOnItemClickListener { position: Int ->
@@ -113,6 +130,22 @@ class HomeFragment : Fragment() {
         // Method to show current month by default
         setCurrentMonth(currentWeekStart)
 //        loadTasksFromDatabase(selectedDate)
+
+        //Initialize Category Adapter
+        categoryList = mutableListOf()
+        CoroutineScope(Main).launch {
+            if (!tasksDAO!!.isCategoryExist("General")) {
+                tasksDAO!!.addCategory("General", generateId())
+            }
+            categoryList = tasksDAO!!.fetchAllCategories()
+            if (categoryList.isNotEmpty()) {
+                setCategoryAdapter(categoryList)
+            }
+        }
+
+        binding!!.AddCategory.setOnClickListener{
+            utils.showAddCategoryDialog(requireContext(), categoryAdapter)
+        }
 
         // Initialize Spinner
         val spinner = binding!!.taskType
@@ -137,6 +170,91 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
+    private fun generateId(): String {
+        return UUID.randomUUID().toString()
+    }
+
+    private fun setupSwipeToDelete() {
+        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val taskId = tasksAdapter?.getItem(position)?.id ?: return
+                showDeleteConfirmationDialog(position,taskId)
+
+//                tasksAdapter?.removeItem(position)
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                val icon = ContextCompat.getDrawable(activity!!, R.drawable.delete)!!
+                val background = ColorDrawable(Color.RED)
+
+                val itemView = viewHolder.itemView
+                val iconMargin = (itemView.height - icon.intrinsicHeight) / 2
+                val iconTop = itemView.top + (itemView.height - icon.intrinsicHeight) / 2
+                val iconBottom = iconTop + icon.intrinsicHeight
+
+                when {
+                    dX > 0 -> { // Swiping to the right
+                        background.setBounds(itemView.left, itemView.top, itemView.left + dX.toInt(), itemView.bottom)
+                        icon.setBounds(
+                            itemView.left + iconMargin,
+                            iconTop,
+                            itemView.left + iconMargin + icon.intrinsicWidth,
+                            iconBottom
+                        )
+                    }
+                    else -> { // view is unSwiped
+                        background.setBounds(0, 0, 0, 0)
+                        icon.setBounds(0, 0, 0, 0)
+                    }
+                }
+
+                background.draw(c)
+                icon.draw(c)
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(tasksrecycler)
+    }
+
+    private fun showDeleteConfirmationDialog(position: Int,taskId:String) {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setMessage("Are you sure you want to delete this task?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                tasksAdapter?.removeItem(position)
+                CoroutineScope(Main).launch {
+                tasksDAO?.deleteTask(taskId)
+                    Toast.makeText(activity,"Task Deleted Successfully",Toast.LENGTH_LONG).show()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                tasksAdapter?.notifyItemChanged(position)
+                dialog.dismiss()
+            }
+        builder.create().show()
+    }
+
 
     private fun generateWeekDays(startingDay: Calendar): List<Day> {
         return utils.generateDaysForWeek(startingDay)
@@ -254,5 +372,11 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         tasksDAO?.close()
         binding = null
+    }
+
+    private fun setCategoryAdapter(categoryList : MutableList<Category>){
+        categoryAdapter = CategoryAdapter(categoryList, tasksDAO!!, requireContext())
+        binding!!.categoryRecyclerView.layoutManager = LinearLayoutManager(activity,LinearLayoutManager.HORIZONTAL,false)
+        binding!!.categoryRecyclerView.adapter = categoryAdapter
     }
 }

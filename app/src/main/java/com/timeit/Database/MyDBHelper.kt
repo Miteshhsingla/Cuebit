@@ -1,6 +1,5 @@
 package com.timeit.Database
 
-import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -9,7 +8,7 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     companion object {
         private const val DATABASE_NAME = "MY_DATABASE"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 3
 
         // Table and column names for tasks
         const val TABLE_TASKS = "tasks"
@@ -23,6 +22,11 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
         // Table and column names for users
         const val TABLE_USERS = "users"
         const val COLUMN_USER_NAME = "name"
+
+        // Table and column names for categories
+        const val TABLE_CATEGORIES = "categories"
+        const val COLUMN_CATEGORY_ID = "categoryId"
+        const val COLUMN_CATEGORY_NAME = "categoryName"
     }
 
     private val TABLE_CREATE_TASKS = """
@@ -42,16 +46,24 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
         );
     """.trimIndent()
 
+    private val TABLE_CREATE_CATEGORIES = """
+        CREATE TABLE $TABLE_CATEGORIES (
+            $COLUMN_CATEGORY_ID TEXT PRIMARY KEY,
+            $COLUMN_CATEGORY_NAME TEXT
+        );
+    """.trimIndent()
+
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(TABLE_CREATE_TASKS)
         db?.execSQL(TABLE_CREATE_USERS)
+        db?.execSQL(TABLE_CREATE_CATEGORIES)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_TASKS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_CATEGORIES")
         onCreate(db)
     }
-
 
 }
