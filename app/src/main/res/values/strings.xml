@@ -13,6 +13,8 @@
     <string name="CreateTask">Set Reminder</string>
     <string name="SetAvatar">Choose Avatar</string>
     <string name="UpdateTask">Update Task</string>
+    <string name="add_category">Add Category</string>
+    <string name="create_category">Enter Category Name</string>
 
     <string-array name="task_types">
         <item>Habits</item>

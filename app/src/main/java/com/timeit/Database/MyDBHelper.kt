@@ -1,8 +1,6 @@
 package com.timeit.Database
 
-import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
@@ -50,7 +48,7 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     private val TABLE_CREATE_CATEGORIES = """
         CREATE TABLE $TABLE_CATEGORIES (
-            $COLUMN_CATEGORY_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            $COLUMN_CATEGORY_ID TEXT PRIMARY KEY,
             $COLUMN_CATEGORY_NAME TEXT
         );
     """.trimIndent()

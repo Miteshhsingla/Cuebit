@@ -31,13 +31,13 @@ import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.R
 import com.timeit.app.databinding.FragmentHomeBinding
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.UUID
 
 class HomeFragment : Fragment() {
     private var binding: FragmentHomeBinding? = null
@@ -133,15 +133,19 @@ class HomeFragment : Fragment() {
 
         //Initialize Category Adapter
         categoryList = mutableListOf()
-        CoroutineScope(Dispatchers.Main).launch {
-            tasksDAO!!.addCategory("GENERAL")
+        CoroutineScope(Main).launch {
+            if (!tasksDAO!!.isCategoryExist("General")) {
+                tasksDAO!!.addCategory("General", generateId())
+            }
             categoryList = tasksDAO!!.fetchAllCategories()
-            if(!categoryList.isEmpty()){
+            if (categoryList.isNotEmpty()) {
                 setCategoryAdapter(categoryList)
             }
         }
 
-
+        binding!!.AddCategory.setOnClickListener{
+            utils.showAddCategoryDialog(requireContext(), categoryAdapter)
+        }
 
         // Initialize Spinner
         val spinner = binding!!.taskType
@@ -165,6 +169,10 @@ class HomeFragment : Fragment() {
                 // Do nothing
             }
         }
+    }
+
+    private fun generateId(): String {
+        return UUID.randomUUID().toString()
     }
 
     private fun setupSwipeToDelete() {
@@ -234,7 +242,7 @@ class HomeFragment : Fragment() {
         builder.setMessage("Are you sure you want to delete this task?")
             .setPositiveButton("Yes") { dialog, _ ->
                 tasksAdapter?.removeItem(position)
-                CoroutineScope(Dispatchers.Main).launch {
+                CoroutineScope(Main).launch {
                 tasksDAO?.deleteTask(taskId)
                     Toast.makeText(activity,"Task Deleted Successfully",Toast.LENGTH_LONG).show()
                 }
@@ -367,7 +375,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setCategoryAdapter(categoryList : MutableList<Category>){
-        val categoryAdapter = CategoryAdapter(categoryList)
+        categoryAdapter = CategoryAdapter(categoryList, tasksDAO!!, requireContext())
         binding!!.categoryRecyclerView.layoutManager = LinearLayoutManager(activity,LinearLayoutManager.HORIZONTAL,false)
         binding!!.categoryRecyclerView.adapter = categoryAdapter
     }

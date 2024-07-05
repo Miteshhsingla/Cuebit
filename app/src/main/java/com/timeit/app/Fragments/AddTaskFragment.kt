@@ -7,11 +7,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.timeit.Database.TasksDAO
+import com.timeit.app.DataModels.Frequency
 import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.databinding.FragmentAddTaskBinding
 import kotlinx.coroutines.launch
@@ -33,8 +35,8 @@ class AddTaskFragment : Fragment() {
     private lateinit var TaskDateTime : String
     private lateinit var TaskFrequency : String
     private lateinit var TaskId : String
-
-
+    private lateinit var categoryAdapter: ArrayAdapter<String>
+    private lateinit var frequencyAdapter: ArrayAdapter<String>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,8 +51,25 @@ class AddTaskFragment : Fragment() {
 
         tasksDAO = TasksDAO(activity)
 
+        // Initialize Category Spinner Adapter
+        categoryAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, mutableListOf())
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.category.adapter = categoryAdapter
+
+        // Fetch Category Names from Database
+        lifecycleScope.launch {
+            val categoryNames = tasksDAO.fetchAllCategories().map { it.categoryName }
+            categoryAdapter.addAll(categoryNames)
+            categoryAdapter.notifyDataSetChanged()
+        }
+
+        // Initialize Frequency Spinner Adapter And Showing Data in Spinner
+        frequencyAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, Frequency.entries.map { it.name })
+        frequencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.Frequency.adapter = frequencyAdapter
+
         binding.dateAndTime.setOnClickListener{
-            showDateTimePicker(binding.dateAndTime);
+            showDateTimePicker(binding.dateAndTime)
         }
 
 
@@ -75,7 +94,7 @@ class AddTaskFragment : Fragment() {
         TaskDescription = binding.Description.text.toString()
         TaskCategory = binding.category.toString()
         TaskDateTime = binding.dateAndTime.text.toString()
-        TaskFrequency = binding.Frequency.text.toString()
+        TaskFrequency = binding.Frequency.toString()
 
         TaskDetails = TaskDataModel(TaskId, TaskTitle, TaskDescription, TaskCategory, TaskDateTime, TaskFrequency)
     }
@@ -119,6 +138,11 @@ class AddTaskFragment : Fragment() {
         )
 
         datePicker.show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

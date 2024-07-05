@@ -1,10 +1,26 @@
 package com.timeit.Utils
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
+import android.view.LayoutInflater
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import com.timeit.Database.TasksDAO
+import com.timeit.app.Adapters.CategoryAdapter
+import com.timeit.app.DataModels.Category
 import com.timeit.app.DataModels.Day
+import com.timeit.app.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 public class Utils {
 
@@ -94,6 +110,51 @@ public class Utils {
         val today = Calendar.getInstance()
         return calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
                 calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
+    }
+
+    @SuppressLint("MissingInflatedId")
+    public fun showAddCategoryDialog(context: Context, categoryAdapter: CategoryAdapter) {
+        // Create a new instance of the dialog
+        val tasksDAO = TasksDAO(context)
+        var categoryList: MutableList<Category>
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.add_category_dialog, null)
+        val dialogBuilder = AlertDialog.Builder(context)
+            .setView(dialogView)
+            .setTitle("Add Category")
+
+        // Show the dialog
+        val alertDialog = dialogBuilder.show()
+
+        // Handle the dialog input
+        val editTextCategoryName = dialogView.findViewById<EditText>(R.id.category_name)
+        val buttonAddCategory = dialogView.findViewById<TextView>(R.id.SetCategoryButton)
+        val crossButton = dialogView.findViewById<ImageView>(R.id.crossButton)
+
+        crossButton.setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        buttonAddCategory.setOnClickListener {
+            val categoryName = editTextCategoryName.text.toString().trim()
+            val categoryId = generateId()
+
+            if (categoryName.isNotEmpty()) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    tasksDAO.addCategory(categoryName, categoryId)
+                    categoryList = tasksDAO.fetchAllCategories()
+                    if (categoryList.isNotEmpty()) {
+                        categoryAdapter.updateAdapter(categoryList)
+                    }
+                }
+                alertDialog.dismiss()
+            } else {
+                Toast.makeText(context, "Category name cannot be empty", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun generateId(): String {
+        return UUID.randomUUID().toString()
     }
 
 }

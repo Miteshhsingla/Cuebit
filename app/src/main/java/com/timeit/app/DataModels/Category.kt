@@ -1,4 +1,4 @@
 package com.timeit.app.DataModels
 
-data class Category(val categoryId: Int,
+data class Category(val categoryId: String,
                     val categoryName: String)

@@ -132,13 +132,15 @@ class TasksDAO(context: Context?) {
         }
     }
 
-    suspend fun addCategory(categoryName: String) {
+    suspend fun addCategory(categoryName: String, categoryId: String) {
         withContext(Dispatchers.IO) {
 
             val db = database
             val values = ContentValues().apply {
+                put(MyDBHelper.COLUMN_CATEGORY_ID, categoryId)
                 put(MyDBHelper.COLUMN_CATEGORY_NAME, categoryName)
             }
+            db.insert(MyDBHelper.TABLE_CATEGORIES, null, values)
         }
     }
 
@@ -152,7 +154,7 @@ class TasksDAO(context: Context?) {
                 if (it.moveToFirst()) {
                     do {
                         val categoryId =
-                            it.getInt(it.getColumnIndexOrThrow(MyDBHelper.COLUMN_CATEGORY_ID))
+                            it.getString(it.getColumnIndexOrThrow(MyDBHelper.COLUMN_CATEGORY_ID))
                         val categoryName =
                             it.getString(it.getColumnIndexOrThrow(MyDBHelper.COLUMN_CATEGORY_NAME))
                         categories.add(Category(categoryId, categoryName))
@@ -163,14 +165,32 @@ class TasksDAO(context: Context?) {
         }
     }
 
-    suspend fun deleteCategory(categoryId: Int) {
+    suspend fun isCategoryExist(categoryName: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val db = dbHelper.readableDatabase
+            val cursor = db.query(
+                MyDBHelper.TABLE_CATEGORIES,
+                arrayOf(MyDBHelper.COLUMN_CATEGORY_NAME),
+                "${MyDBHelper.COLUMN_CATEGORY_NAME} = ?",
+                arrayOf(categoryName),
+                null,
+                null,
+                null
+            )
+            val exists = cursor.count > 0
+            cursor.close()
+            exists
+        }
+    }
+
+    suspend fun deleteCategory(categoryId: String) {
         withContext(Dispatchers.IO) {
 
             val db = database
              db.delete(
                 MyDBHelper.TABLE_CATEGORIES,
                 "${MyDBHelper.COLUMN_CATEGORY_ID} = ?",
-                arrayOf(categoryId.toString())
+                arrayOf(categoryId)
             )
         }
     }
