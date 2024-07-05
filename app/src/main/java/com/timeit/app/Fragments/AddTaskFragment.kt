@@ -76,12 +76,16 @@ class AddTaskFragment : Fragment() {
         binding.SetReminderButton.setOnClickListener{
             setData();
 
-            lifecycleScope.launch {
-                tasksDAO.insertTask(TaskDetails)
+            if(TaskDetails.id?.isNotEmpty() == true && TaskDetails.title?.isNotEmpty() == true && TaskDetails.description?.isNotEmpty() == true && TaskDetails.dateAndTime?.isNotEmpty() == true && TaskDetails.frequency?.isNotEmpty() == true && TaskDetails.category?.isNotEmpty() == true){
+                lifecycleScope.launch {
+                    tasksDAO.insertTask(TaskDetails)
+                }
+                Toast.makeText(activity, "Task Created Successfully", Toast.LENGTH_LONG).show()
+                val intent = Intent("com.timeit.app.ACTION_DISMISS_BOTTOM_SHEET")
+                requireContext().sendBroadcast(intent)
+            } else {
+                Toast.makeText(activity, "Please fill all the empty fields", Toast.LENGTH_LONG).show()
             }
-            Toast.makeText(activity,"Task Created Successfully",Toast.LENGTH_LONG).show()
-            val intent = Intent("com.timeit.app.ACTION_DISMISS_BOTTOM_SHEET")
-            requireContext().sendBroadcast(intent)
 
         }
 
