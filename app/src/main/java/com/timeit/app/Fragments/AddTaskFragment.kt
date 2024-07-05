@@ -2,6 +2,7 @@ package com.timeit.app.Fragments
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +34,8 @@ class AddTaskFragment : Fragment() {
     private lateinit var TaskFrequency : String
     private lateinit var TaskId : String
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -58,6 +61,9 @@ class AddTaskFragment : Fragment() {
                 tasksDAO.insertTask(TaskDetails)
             }
             Toast.makeText(activity,"Task Created Successfully",Toast.LENGTH_LONG).show()
+            val intent = Intent("com.timeit.app.ACTION_DISMISS_BOTTOM_SHEET")
+            requireContext().sendBroadcast(intent)
+
         }
 
     }

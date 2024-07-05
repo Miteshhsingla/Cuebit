@@ -13,6 +13,7 @@
         <color name="color4">#B1D6F3</color>
         <color name="color5">#D6B1F3</color>
         <color name="color6">#F3B1C1</color>
+    <color name="colorRecyclerViewDelete">#000000</color>
 
 
 </resources>

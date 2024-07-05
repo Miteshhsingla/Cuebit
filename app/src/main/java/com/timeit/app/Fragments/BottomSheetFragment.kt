@@ -1,5 +1,9 @@
 package com.timeit.app.Fragments
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +20,12 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentBottomSheetBinding? = null
     private val binding get() = _binding!!
+
+    private val dismissReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            dismiss()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,8 +102,16 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter("com.timeit.app.ACTION_DISMISS_BOTTOM_SHEET")
+        requireContext().registerReceiver(dismissReceiver, filter)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        requireContext().unregisterReceiver(dismissReceiver)
+
     }
 }

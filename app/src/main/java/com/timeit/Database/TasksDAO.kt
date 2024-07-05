@@ -116,4 +116,11 @@ class TasksDAO(context: Context?) {
             tasksList
         }
     }
+
+    suspend fun deleteTask(id: String) {
+        withContext(Dispatchers.IO) {
+            database.delete(MyDBHelper.TABLE_TASKS, "${MyDBHelper.COLUMN_ID} = ?", arrayOf(id))
+        }
+    }
+
 }

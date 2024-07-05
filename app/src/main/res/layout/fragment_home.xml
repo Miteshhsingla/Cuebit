@@ -111,40 +111,41 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="end"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
-        android:paddingEnd="20dp">
+        >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/categoryRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:orientation="horizontal"
+            tools:listitem="@layout/category_item"
+            android:layout_weight=".4"/>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical">
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_weight="0.6">
 
             <Spinner
                 android:id="@+id/taskType"
                 style="@style/TitleSelectedDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="20dp"
+                android:background="@drawable/bottom_nav_bg"
                 android:fontFamily="@font/plusjakarta_semibold"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:padding="8dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 tools:text="Tasks" />
 
-            <ImageView
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:rotation="90"
-                android:layout_marginStart="10dp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_weekday_chevron_down"
-                />
+
         </LinearLayout>
     </LinearLayout>
 

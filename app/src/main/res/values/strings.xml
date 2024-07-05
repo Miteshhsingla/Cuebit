@@ -12,10 +12,11 @@
     <string name="Frequency">Frequency</string>
     <string name="CreateTask">Set Reminder</string>
     <string name="SetAvatar">Choose Avatar</string>
+    <string name="UpdateTask">Update Task</string>
 
-        <string-array name="task_types">
-            <item>Habits</item>
-            <item>Tasks</item>
-        </string-array>
+    <string-array name="task_types">
+        <item>Habits</item>
+        <item>Tasks</item>
+    </string-array>
 
 </resources>
