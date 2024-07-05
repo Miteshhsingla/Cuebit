@@ -68,6 +68,11 @@ public class Utils {
         val days = mutableListOf<Day>()
         val calendar = startingDay.clone() as Calendar
 
+        // Ensure the starting day is Monday
+        while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            calendar.add(Calendar.DAY_OF_MONTH, -1)
+        }
+
         for (i in 0 until 7) {
             val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: ""
             val dayNumber = calendar.get(Calendar.DAY_OF_MONTH)

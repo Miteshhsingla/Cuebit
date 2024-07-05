@@ -7,9 +7,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.timeit.app.DataModels.Category
 import com.timeit.app.R
 
-class CategoryAdapter(val categoryList: ArrayList<String>): RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
+class CategoryAdapter(val categoryList: MutableList<Category>): RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -24,7 +25,7 @@ class CategoryAdapter(val categoryList: ArrayList<String>): RecyclerView.Adapter
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = categoryList[position]
-        holder.categoryName.text = category
+        holder.categoryName.text = category.categoryName
     }
 
     class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
