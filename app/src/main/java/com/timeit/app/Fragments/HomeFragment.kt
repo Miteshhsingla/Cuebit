@@ -2,10 +2,13 @@ package com.timeit.app.Fragments
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.BroadcastReceiver
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -56,6 +59,13 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     private var userName: String = ""
     private var userImage: Int = 0
 
+    private val taskInsertedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // Load tasks again when a new task is inserted
+            selectedDate?.let { loadTasksFromDatabase(it) }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -105,12 +115,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
         // Set adapter for showing tasks in RecyclerView
         tasksrecycler = binding!!.recylerViewTasks
-        if(tasksList!!.isNotEmpty()){
-            binding!!.recylerViewTasks.isVisible = true
-        }
-        else{
-            binding!!.emptyState.isVisible = true
-        }
+
         tasksAdapter = TasksAdapter(tasksList!!, requireContext())
         binding!!.recylerViewTasks.layoutManager = LinearLayoutManager(context)
         binding!!.recylerViewTasks.adapter = tasksAdapter
@@ -279,7 +284,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
     private fun markTaskAsDone(position: Int, taskId: String) {
         CoroutineScope(Main).launch {
-//            tasksDAO?.markTaskAsDone(taskId)
+            tasksDAO?.markTaskAsDone(taskId)
             tasksAdapter?.removeItem(position)  // Or update the item status and notify changes
             Toast.makeText(activity, "Task marked as done", Toast.LENGTH_SHORT).show()
         }
@@ -297,6 +302,14 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
                     Toast.makeText(activity,"Task Deleted Successfully",Toast.LENGTH_LONG).show()
                 }
                 dialog.dismiss()
+                if(tasksList!!.isEmpty()){
+                    binding!!.emptyState.isVisible = true
+                    binding!!.recylerViewTasks.isVisible = false
+                }
+                else{
+                    binding!!.emptyState.isVisible = false
+                    binding!!.recylerViewTasks.isVisible = true
+                }
             }
             .setNegativeButton("No") { dialog, _ ->
                 tasksAdapter?.notifyItemChanged(position)
@@ -397,13 +410,22 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
             } else {
                 tasksList!!.addAll(tasksDAO!!.getTasksForDate(formattedDate))
             }
-            if (tasksList!!.isEmpty()) {
-                binding!!.recylerViewTasks.visibility = View.GONE
+            if(tasksList!!.isNotEmpty()){
+                binding!!.emptyState.isVisible = false
+                binding!!.recylerViewTasks.isVisible = true
                 tasksAdapter!!.notifyDataSetChanged()
-            } else {
-                tasksAdapter!!.notifyDataSetChanged()
-                binding!!.recylerViewTasks.visibility = View.VISIBLE
             }
+            else{
+                tasksAdapter!!.notifyDataSetChanged()
+                binding!!.recylerViewTasks.isVisible = false
+                binding!!.emptyState.isVisible = true
+            }
+//            if (tasksList!!.isEmpty()) {
+//                binding!!.recylerViewTasks.visibility = View.GONE
+//
+//            } else {
+//                binding!!.recylerViewTasks.visibility = View.VISIBLE
+//            }
         }
     }
 
@@ -416,6 +438,17 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
             }
         }
         return -1 // In case the month name is not found
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter("com.timeit.app.ACTION_TASK_INSERTED")
+        requireContext().registerReceiver(taskInsertedReceiver, filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireContext().unregisterReceiver(taskInsertedReceiver)
     }
 
     override fun onDestroyView() {
