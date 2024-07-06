@@ -1,24 +1,22 @@
-<!-- res/layout/item_task.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="12dp"
+    android:layout_marginLeft="12dp"
+    android:layout_marginRight="12dp"
+    android:layout_marginBottom="0dp"
     android:padding="2dp">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="8dp"
+        app:cardCornerRadius="12dp"
         app:cardBackgroundColor="@color/white"
         app:cardElevation="0dp"
-
         app:cardUseCompatPadding="true">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -41,12 +39,24 @@
                     android:padding="16dp">
 
                     <TextView
+                        android:id="@+id/taskCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/plusjakarta_medium"
+                        android:text="@string/Category"
+                        android:textColor="@color/black"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
                         android:id="@+id/taskTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="16sp"
+                        android:layout_marginTop="6dp"
                         android:textStyle="bold"
                         android:text="Title"
+                        android:fontFamily="@font/plusjakarta_semibold"
                         android:textColor="@color/black" />
 
                     <TextView
@@ -54,8 +64,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
-                        android:paddingTop="8dp"
+                        android:layout_marginTop="6dp"
                         android:text="Description"
+                        android:fontFamily="@font/plusjakarta_regular"
                         android:textColor="@color/black"
                         android:visibility="gone"/>
 
@@ -63,29 +74,6 @@
                         android:id="@+id/streak_reminder_container"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
-
-                        <LinearLayout
-                            android:id="@+id/reminderContainer"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingTop="8dp"
-                            android:visibility="gone">
-
-                            <ImageView
-                                android:id="@+id/reminderIcon"
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:layout_gravity="center"
-                                android:layout_marginRight="10dp"
-                                android:src="@drawable/ic_clock"/>
-                            <TextView
-                                android:id="@+id/reminderTime"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="14sp"
-                                android:text="11:00"
-                                android:textColor="@color/black" />
-                        </LinearLayout>
 
                         <LinearLayout
                             android:id="@+id/streakContainer"
@@ -107,6 +95,7 @@
                                 android:layout_height="wrap_content"
                                 android:textSize="14sp"
                                 android:text="11:00"
+                                android:fontFamily="@font/plusjakarta_regular"
                                 android:textColor="@color/black" />
                         </LinearLayout>
 
@@ -128,10 +117,38 @@
                         android:visibility="gone"/>
 
                 </LinearLayout>
-
             </LinearLayout>
 
-        </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/reminderContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="12dp"
+            android:gravity="center"
+            android:background="@drawable/category_bg"
+            android:backgroundTint="@color/bg_white"
+            android:padding="6dp">
+
+            <ImageView
+                android:id="@+id/reminderIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginRight="4dp"
+                android:src="@drawable/timeclock" />
+
+            <TextView
+                android:id="@+id/reminderTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/plusjakarta_medium"
+                android:text="11:00"
+                android:textColor="@color/black"
+                android:textSize="12sp" />
+        </LinearLayout>
+
 
     </androidx.cardview.widget.CardView>
 

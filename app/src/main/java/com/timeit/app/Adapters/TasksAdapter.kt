@@ -22,6 +22,7 @@ class TasksAdapter(private var tasksList: MutableList<TaskDataModel>, private va
         val taskDateTime: TextView = itemView.findViewById(R.id.reminderTime)
         val dateTimeIcon: ImageView = itemView.findViewById(R.id.reminderIcon)
         val dateTimeContainer: LinearLayout = itemView.findViewById(R.id.reminderContainer)
+        val taskCategory: TextView = itemView.findViewById(R.id.taskCategory)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): tasksViewHolder {
@@ -52,6 +53,7 @@ class TasksAdapter(private var tasksList: MutableList<TaskDataModel>, private va
         val dateTime = task.dateAndTime
         val time = dateTime!!.split(" ")[1]
         holder.taskDateTime.text = time
+        holder.taskCategory.text = task.category
 
 
         holder.itemView.setOnClickListener {

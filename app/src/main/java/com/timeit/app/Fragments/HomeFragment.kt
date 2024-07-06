@@ -2,10 +2,13 @@ package com.timeit.app.Fragments
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.BroadcastReceiver
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +18,7 @@ import android.widget.ArrayAdapter
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -39,7 +43,7 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     private var binding: FragmentHomeBinding? = null
     private val utils = Utils()
     private var dateAdapter: DateAdapter? = null
@@ -54,6 +58,14 @@ class HomeFragment : Fragment() {
     private lateinit var categoryList : MutableList<Category>
     private var userName: String = ""
     private var userImage: Int = 0
+
+    private val taskInsertedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // Load tasks again when a new task is inserted
+            selectedDate?.let { loadTasksFromDatabase(it) }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -103,6 +115,7 @@ class HomeFragment : Fragment() {
 
         // Set adapter for showing tasks in RecyclerView
         tasksrecycler = binding!!.recylerViewTasks
+
         tasksAdapter = TasksAdapter(tasksList!!, requireContext())
         binding!!.recylerViewTasks.layoutManager = LinearLayoutManager(context)
         binding!!.recylerViewTasks.adapter = tasksAdapter
@@ -134,8 +147,8 @@ class HomeFragment : Fragment() {
         //Initialize Category Adapter
         categoryList = mutableListOf()
         CoroutineScope(Main).launch {
-            if (!tasksDAO!!.isCategoryExist("General")) {
-                tasksDAO!!.addCategory("General", generateId())
+            if (!tasksDAO!!.isCategoryExist("All")) {
+                tasksDAO!!.addCategory("All", generateId())
             }
             categoryList = tasksDAO!!.fetchAllCategories()
             if (categoryList.isNotEmpty()) {
@@ -175,8 +188,12 @@ class HomeFragment : Fragment() {
         return UUID.randomUUID().toString()
     }
 
+    override fun onTasksFetched(tasks: List<TaskDataModel>) {
+        tasksAdapter?.updateTasks(tasks)
+    }
+
     private fun setupSwipeToDelete() {
-        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -188,9 +205,17 @@ class HomeFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val taskId = tasksAdapter?.getItem(position)?.id ?: return
-                showDeleteConfirmationDialog(position,taskId)
 
-//                tasksAdapter?.removeItem(position)
+                when (direction) {
+                    ItemTouchHelper.RIGHT -> {
+                        // Mark task as done
+                        markTaskAsDone(position, taskId)
+                    }
+                    ItemTouchHelper.LEFT -> {
+                        // Show delete confirmation dialog
+                        showDeleteConfirmationDialog(position, taskId)
+                    }
+                }
             }
 
             override fun onChildDraw(
@@ -202,32 +227,52 @@ class HomeFragment : Fragment() {
                 actionState: Int,
                 isCurrentlyActive: Boolean
             ) {
-                val icon = ContextCompat.getDrawable(activity!!, R.drawable.delete)!!
-                val background = ColorDrawable(Color.RED)
-
+                val icon: Int
+                val background: ColorDrawable
                 val itemView = viewHolder.itemView
-                val iconMargin = (itemView.height - icon.intrinsicHeight) / 2
-                val iconTop = itemView.top + (itemView.height - icon.intrinsicHeight) / 2
-                val iconBottom = iconTop + icon.intrinsicHeight
+
+                if (dX > 0) {
+                    // Swiping right for "Mark as Done"
+                    icon = R.drawable.ic_tick
+                    background = ColorDrawable(Color.GREEN)
+                } else {
+                    // Swiping left for "Delete"
+                    icon = R.drawable.delete
+                    background = ColorDrawable(Color.RED)
+                }
+
+                val iconDrawable = ContextCompat.getDrawable(requireContext(), icon)!!
+                val iconMargin = (itemView.height - iconDrawable.intrinsicHeight) / 2
+                val iconTop = itemView.top + (itemView.height - iconDrawable.intrinsicHeight) / 2
+                val iconBottom = iconTop + iconDrawable.intrinsicHeight
 
                 when {
                     dX > 0 -> { // Swiping to the right
                         background.setBounds(itemView.left, itemView.top, itemView.left + dX.toInt(), itemView.bottom)
-                        icon.setBounds(
+                        iconDrawable.setBounds(
                             itemView.left + iconMargin,
                             iconTop,
-                            itemView.left + iconMargin + icon.intrinsicWidth,
+                            itemView.left + iconMargin + iconDrawable.intrinsicWidth,
                             iconBottom
                         )
                     }
-                    else -> { // view is unSwiped
+                    dX < 0 -> { // Swiping to the left
+                        background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
+                        iconDrawable.setBounds(
+                            itemView.right - iconDrawable.intrinsicWidth - iconMargin,
+                            iconTop,
+                            itemView.right - iconMargin,
+                            iconBottom
+                        )
+                    }
+                    else -> { // No swiping
                         background.setBounds(0, 0, 0, 0)
-                        icon.setBounds(0, 0, 0, 0)
+                        iconDrawable.setBounds(0, 0, 0, 0)
                     }
                 }
 
                 background.draw(c)
-                icon.draw(c)
+                iconDrawable.draw(c)
 
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
@@ -236,6 +281,16 @@ class HomeFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(tasksrecycler)
     }
+
+    private fun markTaskAsDone(position: Int, taskId: String) {
+        CoroutineScope(Main).launch {
+            tasksDAO?.markTaskAsDone(taskId)
+            tasksAdapter?.removeItem(position)  // Or update the item status and notify changes
+            Toast.makeText(activity, "Task marked as done", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
 
     private fun showDeleteConfirmationDialog(position: Int,taskId:String) {
         val builder = AlertDialog.Builder(requireContext())
@@ -247,6 +302,14 @@ class HomeFragment : Fragment() {
                     Toast.makeText(activity,"Task Deleted Successfully",Toast.LENGTH_LONG).show()
                 }
                 dialog.dismiss()
+                if(tasksList!!.isEmpty()){
+                    binding!!.emptyState.isVisible = true
+                    binding!!.recylerViewTasks.isVisible = false
+                }
+                else{
+                    binding!!.emptyState.isVisible = false
+                    binding!!.recylerViewTasks.isVisible = true
+                }
             }
             .setNegativeButton("No") { dialog, _ ->
                 tasksAdapter?.notifyItemChanged(position)
@@ -347,13 +410,22 @@ class HomeFragment : Fragment() {
             } else {
                 tasksList!!.addAll(tasksDAO!!.getTasksForDate(formattedDate))
             }
-            if (tasksList!!.isEmpty()) {
-                binding!!.recylerViewTasks.visibility = View.GONE
+            if(tasksList!!.isNotEmpty()){
+                binding!!.emptyState.isVisible = false
+                binding!!.recylerViewTasks.isVisible = true
                 tasksAdapter!!.notifyDataSetChanged()
-            } else {
-                tasksAdapter!!.notifyDataSetChanged()
-                binding!!.recylerViewTasks.visibility = View.VISIBLE
             }
+            else{
+                tasksAdapter!!.notifyDataSetChanged()
+                binding!!.recylerViewTasks.isVisible = false
+                binding!!.emptyState.isVisible = true
+            }
+//            if (tasksList!!.isEmpty()) {
+//                binding!!.recylerViewTasks.visibility = View.GONE
+//
+//            } else {
+//                binding!!.recylerViewTasks.visibility = View.VISIBLE
+//            }
         }
     }
 
@@ -368,6 +440,17 @@ class HomeFragment : Fragment() {
         return -1 // In case the month name is not found
     }
 
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter("com.timeit.app.ACTION_TASK_INSERTED")
+        requireContext().registerReceiver(taskInsertedReceiver, filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireContext().unregisterReceiver(taskInsertedReceiver)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         tasksDAO?.close()
@@ -375,7 +458,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setCategoryAdapter(categoryList : MutableList<Category>){
-        categoryAdapter = CategoryAdapter(categoryList, tasksDAO!!, requireContext())
+        categoryAdapter = CategoryAdapter(categoryList, tasksDAO!!, requireContext(),this)
         binding!!.categoryRecyclerView.layoutManager = LinearLayoutManager(activity,LinearLayoutManager.HORIZONTAL,false)
         binding!!.categoryRecyclerView.adapter = categoryAdapter
     }

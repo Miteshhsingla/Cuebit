@@ -3,6 +3,7 @@ package com.timeit.app.Adapters
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,12 +13,14 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.timeit.Database.TasksDAO
 import com.timeit.app.DataModels.Category
+import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class CategoryAdapter(var categoryList: MutableList<Category>, private var tasksDAO: TasksDAO, var context: Context): RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
+class CategoryAdapter(var categoryList: MutableList<Category>, private var tasksDAO: TasksDAO, var context: Context
+, private var listener: OnTasksFetchedListener): RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
     private var selectedPosition: Int = RecyclerView.NO_POSITION
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -37,7 +40,7 @@ class CategoryAdapter(var categoryList: MutableList<Category>, private var tasks
         // Highlight the selected category
         if (position == selectedPosition) {
             holder.categoryName.setBackgroundColor(Color.TRANSPARENT)
-            holder.block.setBackgroundResource(R.drawable.selected_day_bg)
+            holder.block.setBackgroundResource(R.drawable.category_bg_selected)
             holder.categoryName.setTextColor(Color.WHITE)
         } else {
             holder.block.setBackgroundColor(Color.TRANSPARENT)
@@ -53,10 +56,30 @@ class CategoryAdapter(var categoryList: MutableList<Category>, private var tasks
             // Notify the adapter to update the UI
             notifyItemChanged(previousPosition)
             notifyItemChanged(selectedPosition)
+            if(categoryList[selectedPosition].categoryName == "All"){
+                CoroutineScope(Dispatchers.Main).launch {
+                    val tasks: List<TaskDataModel> = tasksDAO.getAllTasks()
+                    listener.onTasksFetched(tasks)
+                }
+            }
+            else{
+                CoroutineScope(Dispatchers.Main).launch {
+                    val tasks:  List<TaskDataModel> = tasksDAO.getTasksByCategory(categoryList[selectedPosition].categoryName)
+                    listener.onTasksFetched(tasks)
+                }
+            }
+
+
         }
 
         holder.itemView.setOnLongClickListener {
-            showDeleteDialog(holder.itemView, position)
+            if (categoryList[position].categoryName == "All") {
+
+            }
+            else{
+                showDeleteDialog(holder.itemView, position)
+            }
+
             true
         }
 
@@ -68,9 +91,6 @@ class CategoryAdapter(var categoryList: MutableList<Category>, private var tasks
         builder.setMessage("Are you sure you want to delete this category?")
         builder.setPositiveButton("Yes") { dialog, _ ->
             // Remove the item from the list and notify the adapter
-            if (categoryList[position].categoryName == "General") {
-                Toast.makeText(context, "Cannot delete General category", Toast.LENGTH_SHORT).show()
-            } else {
                 // Remove the item from the list and notify the adapter
                 CoroutineScope(Dispatchers.Main).launch {
                     tasksDAO.deleteCategory(categoryList[position].categoryId)
@@ -78,7 +98,7 @@ class CategoryAdapter(var categoryList: MutableList<Category>, private var tasks
                     notifyItemRemoved(position)
                     notifyItemRangeChanged(position, categoryList.size)
                 }
-            }
+
             dialog.dismiss()
         }
         builder.setNegativeButton("No") { dialog, _ ->
@@ -96,4 +116,9 @@ class CategoryAdapter(var categoryList: MutableList<Category>, private var tasks
         val categoryName: TextView = itemView.findViewById(R.id.category_name)
         val block: LinearLayout = itemView as LinearLayout
     }
+
+    interface OnTasksFetchedListener {
+        fun onTasksFetched(tasks: List<TaskDataModel>)
+    }
+
 }

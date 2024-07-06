@@ -6,7 +6,8 @@ data class TaskDataModel(
     var description: String?= null,
     var category: String?= null,
     var dateAndTime: String?= null,
-    var frequency: String ?= null
+    var frequency: String ?= null,
+    var markAsDone: String ?= "0"
 )
 
 

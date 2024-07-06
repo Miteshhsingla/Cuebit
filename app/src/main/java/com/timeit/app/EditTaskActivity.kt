@@ -1,8 +1,10 @@
 package com.timeit.app
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.timeit.app.databinding.ActivityEditTaskBinding
+import com.timeit.app.ui.MainActivity
 
 class EditTaskActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditTaskBinding
@@ -20,5 +22,9 @@ class EditTaskActivity : AppCompatActivity() {
         binding.title.setText(title)
         binding.Description.setText(description)
         binding.dateAndTime.setText(taskDateTime)
+        binding.backButton.setOnClickListener{
+            val intent = Intent(this,MainActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

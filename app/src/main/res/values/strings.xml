@@ -15,10 +15,13 @@
     <string name="UpdateTask">Update Task</string>
     <string name="add_category">Add Category</string>
     <string name="create_category">Enter Category Name</string>
+    <string name="emptyState">Looks like someone’s been busy with nothing! 🚶‍</string>
+    <string name="emptyState2">“Your tasks are MIA—Missing In Action! 🕵️‍♀️”</string>
+
 
     <string-array name="task_types">
-        <item>Habits</item>
         <item>Tasks</item>
+        <item>Habits</item>
     </string-array>
 
 </resources>
