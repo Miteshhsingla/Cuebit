@@ -1,5 +1,6 @@
 package com.timeit.app.Adapters
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +24,7 @@ class DateAdapter(var dateItemList: List<Day>) : RecyclerView.Adapter<DateAdapte
         return DateViewHolder(view)
     }
 
+    @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: DateViewHolder, position: Int) {
         val day = dateItemList[position]
         holder.dayOfWeekText.text = day.dayOfWeek
@@ -33,10 +35,10 @@ class DateAdapter(var dateItemList: List<Day>) : RecyclerView.Adapter<DateAdapte
             holder.dayOfWeekText.setTextColor(Color.WHITE)
             holder.dayNumberText.setTextColor(Color.WHITE)
             holder.todayDot.isVisible = true
-        } else {
+        } else { 
             holder.block.setBackgroundColor(Color.TRANSPARENT)
-            holder.dayOfWeekText.setTextColor(Color.BLACK)
-            holder.dayNumberText.setTextColor(Color.BLACK)
+            holder.dayOfWeekText.setTextColor(Color.GRAY)
+            holder.dayNumberText.setTextColor(Color.GRAY)
             holder.todayDot.isVisible = false
         }
 

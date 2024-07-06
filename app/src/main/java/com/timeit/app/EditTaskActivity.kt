@@ -20,5 +20,6 @@ class EditTaskActivity : AppCompatActivity() {
         binding.title.setText(title)
         binding.Description.setText(description)
         binding.dateAndTime.setText(taskDateTime)
+
     }
 }

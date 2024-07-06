@@ -120,7 +120,6 @@ public class Utils {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.add_category_dialog, null)
         val dialogBuilder = AlertDialog.Builder(context)
             .setView(dialogView)
-            .setTitle("Add Category")
 
         // Show the dialog
         val alertDialog = dialogBuilder.show()

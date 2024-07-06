@@ -91,7 +91,9 @@ class TasksDAO(context: Context?) {
                             it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION)),
                             it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY)),
                             it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME)),
-                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY)),
+                                    it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TASK_STATUS))
+
                         )
                     )
                 }
@@ -108,6 +110,38 @@ class TasksDAO(context: Context?) {
             val query =
                 "SELECT * FROM ${MyDBHelper.TABLE_TASKS} WHERE SUBSTR(${MyDBHelper.COLUMN_DATETIME}, 1, 10) = ?"
             val cursor = database.rawQuery(query, arrayOf(date))
+            cursor.use {
+                while (it.moveToNext()) {
+                    tasksList.add(
+                        TaskDataModel(
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_ID)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TITLE)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
+                        )
+                    )
+                }
+            }
+            tasksList
+        }
+    }
+
+    // Retrieve tasks for a specific category
+    @SuppressLint("Range")
+    suspend fun getTasksByCategory(category: String): List<TaskDataModel> {
+        return withContext(Dispatchers.IO) {
+            val tasksList = mutableListOf<TaskDataModel>()
+            val cursor = database.query(
+                MyDBHelper.TABLE_TASKS,
+                null,
+                "${MyDBHelper.COLUMN_CATEGORY} = ?",
+                arrayOf(category),
+                null,
+                null,
+                null
+            )
             cursor.use {
                 while (it.moveToNext()) {
                     tasksList.add(

@@ -18,6 +18,8 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
         const val COLUMN_CATEGORY = "category"
         const val COLUMN_DATETIME = "datetime"
         const val COLUMN_FREQUENCY = "frequency"
+        const val COLUMN_TASK_STATUS = "isDone"
+
 
         // Table and column names for users
         const val TABLE_USERS = "users"
@@ -36,7 +38,9 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
             $COLUMN_DESCRIPTION TEXT, 
             $COLUMN_CATEGORY TEXT, 
             $COLUMN_DATETIME TEXT, 
-            $COLUMN_FREQUENCY TEXT
+            $COLUMN_FREQUENCY TEXT,
+            $COLUMN_TASK_STATUS TEXT
+
         );
     """.trimIndent()
 

@@ -96,9 +96,9 @@ class AddTaskFragment : Fragment() {
 
         TaskTitle =  binding.title.text.toString()
         TaskDescription = binding.Description.text.toString()
-        TaskCategory = binding.category.toString()
+        TaskCategory = binding.category.selectedItem.toString()
         TaskDateTime = binding.dateAndTime.text.toString()
-        TaskFrequency = binding.Frequency.toString()
+        TaskFrequency = binding.Frequency.selectedItem.toString()
 
         TaskDetails = TaskDataModel(TaskId, TaskTitle, TaskDescription, TaskCategory, TaskDateTime, TaskFrequency)
     }
