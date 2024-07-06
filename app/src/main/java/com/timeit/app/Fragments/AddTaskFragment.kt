@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -78,11 +79,21 @@ class AddTaskFragment : Fragment() {
 
             if(TaskDetails.id?.isNotEmpty() == true && TaskDetails.title?.isNotEmpty() == true && TaskDetails.description?.isNotEmpty() == true && TaskDetails.dateAndTime?.isNotEmpty() == true && TaskDetails.frequency?.isNotEmpty() == true && TaskDetails.category?.isNotEmpty() == true){
                 lifecycleScope.launch {
-                    tasksDAO.insertTask(TaskDetails)
+                    try {
+                        tasksDAO.insertTask(TaskDetails)
+                        Toast.makeText(activity, "Task Created Successfully", Toast.LENGTH_LONG).show()
+                        // Send broadcast to notify task insertion
+                        val intentHomeFragment = Intent("com.timeit.app.ACTION_TASK_INSERTED")
+                        requireContext().sendBroadcast(intentHomeFragment)
+
+                        // Dismiss bottom sheet
+                        val intent = Intent("com.timeit.app.ACTION_DISMISS_BOTTOM_SHEET")
+                        requireContext().sendBroadcast(intent)
+                    } catch (e: Exception) {
+                        Log.e("AddTaskFragment", "Error inserting task", e)
+                        Toast.makeText(activity, "Failed to create task", Toast.LENGTH_LONG).show()
+                    }
                 }
-                Toast.makeText(activity, "Task Created Successfully", Toast.LENGTH_LONG).show()
-                val intent = Intent("com.timeit.app.ACTION_DISMISS_BOTTOM_SHEET")
-                requireContext().sendBroadcast(intent)
             } else {
                 Toast.makeText(activity, "Please fill all the empty fields", Toast.LENGTH_LONG).show()
             }

@@ -35,6 +35,7 @@ class TasksDAO(context: Context?) {
                 put(MyDBHelper.COLUMN_CATEGORY, task.category)
                 put(MyDBHelper.COLUMN_DATETIME, task.dateAndTime)
                 put(MyDBHelper.COLUMN_FREQUENCY, task.frequency)
+                put(MyDBHelper.COLUMN_TASK_STATUS, task.markAsDone)
             }
             database.insert(MyDBHelper.TABLE_TASKS, null, contentValues)
         }
@@ -73,11 +74,24 @@ class TasksDAO(context: Context?) {
     suspend fun getAllTasks(): List<TaskDataModel> {
         return withContext(Dispatchers.IO) {
             val tasksList = mutableListOf<TaskDataModel>()
+            val columns = arrayOf(
+                MyDBHelper.COLUMN_ID,
+                MyDBHelper.COLUMN_TITLE,
+                MyDBHelper.COLUMN_DESCRIPTION,
+                MyDBHelper.COLUMN_CATEGORY,
+                MyDBHelper.COLUMN_DATETIME,
+                MyDBHelper.COLUMN_FREQUENCY,
+                MyDBHelper.COLUMN_TASK_STATUS
+            )
+            // Specify the selection criteria
+            val selection = "${MyDBHelper.COLUMN_TASK_STATUS} = ?"
+            // Assuming '0' indicates the task is not done
+            val selectionArgs = arrayOf("0")
             val cursor = database.query(
                 MyDBHelper.TABLE_TASKS,
-                null,
-                null,
-                null,
+                columns,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 null
@@ -92,7 +106,7 @@ class TasksDAO(context: Context?) {
                             it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY)),
                             it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME)),
                             it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY)),
-                                    it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TASK_STATUS))
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TASK_STATUS))
 
                         )
                     )
@@ -108,7 +122,7 @@ class TasksDAO(context: Context?) {
         return withContext(Dispatchers.IO) {
             val tasksList = mutableListOf<TaskDataModel>()
             val query =
-                "SELECT * FROM ${MyDBHelper.TABLE_TASKS} WHERE SUBSTR(${MyDBHelper.COLUMN_DATETIME}, 1, 10) = ?"
+                "SELECT * FROM ${MyDBHelper.TABLE_TASKS} WHERE SUBSTR(${MyDBHelper.COLUMN_DATETIME}, 1, 10) = ? AND ${MyDBHelper.COLUMN_TASK_STATUS} = '0'"
             val cursor = database.rawQuery(query, arrayOf(date))
             cursor.use {
                 while (it.moveToNext()) {
@@ -119,7 +133,8 @@ class TasksDAO(context: Context?) {
                             it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DESCRIPTION)),
                             it.getString(it.getColumnIndex(MyDBHelper.COLUMN_CATEGORY)),
                             it.getString(it.getColumnIndex(MyDBHelper.COLUMN_DATETIME)),
-                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY))
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_FREQUENCY)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_TASK_STATUS))
                         )
                     )
                 }
@@ -136,8 +151,8 @@ class TasksDAO(context: Context?) {
             val cursor = database.query(
                 MyDBHelper.TABLE_TASKS,
                 null,
-                "${MyDBHelper.COLUMN_CATEGORY} = ?",
-                arrayOf(category),
+                "${MyDBHelper.COLUMN_CATEGORY} = ? AND ${MyDBHelper.COLUMN_TASK_STATUS} = ?",
+                arrayOf(category, "0"),
                 null,
                 null,
                 null
@@ -157,6 +172,15 @@ class TasksDAO(context: Context?) {
                 }
             }
             tasksList
+        }
+    }
+
+    suspend fun markTaskAsDone(id: String) {
+        withContext(Dispatchers.IO) {
+            val contentValues = ContentValues().apply {
+                put(MyDBHelper.COLUMN_TASK_STATUS, "1")
+            }
+            database.update(MyDBHelper.TABLE_TASKS, contentValues, "${MyDBHelper.COLUMN_ID} = ?", arrayOf(id))
         }
     }
 

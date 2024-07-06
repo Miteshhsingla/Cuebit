@@ -8,7 +8,7 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     companion object {
         private const val DATABASE_NAME = "MY_DATABASE"
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 4
 
         // Table and column names for tasks
         const val TABLE_TASKS = "tasks"
@@ -64,10 +64,15 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_TASKS")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_CATEGORIES")
-        onCreate(db)
+        if (oldVersion < 3){
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_TASKS")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_CATEGORIES")
+        }
+        if (oldVersion < 4 && newVersion > 3) {
+            db?.execSQL("ALTER TABLE $TABLE_TASKS ADD COLUMN $COLUMN_TASK_STATUS TEXT")
+        }
+//        onCreate(db)
     }
 
 }
