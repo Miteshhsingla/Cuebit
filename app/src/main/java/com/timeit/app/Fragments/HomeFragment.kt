@@ -228,11 +228,11 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
                 if (dX > 0) {
                     // Swiping right for "Mark as Done"
-                    icon = R.drawable.ic_tick // Use your check icon here
+                    icon = R.drawable.ic_tick
                     background = ColorDrawable(Color.GREEN)
                 } else {
                     // Swiping left for "Delete"
-                    icon = R.drawable.delete // Use your delete icon here
+                    icon = R.drawable.delete
                     background = ColorDrawable(Color.RED)
                 }
 

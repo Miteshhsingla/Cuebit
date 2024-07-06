@@ -1,7 +1,11 @@
 package com.timeit.app.Fragments
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.DatePickerDialog
+import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,9 +14,11 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.timeit.Database.TasksDAO
+import com.timeit.app.AlarmReceiver
 import com.timeit.app.DataModels.Frequency
 import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.databinding.FragmentAddTaskBinding
@@ -22,19 +28,20 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
 
-
 class AddTaskFragment : Fragment() {
     private var _binding: FragmentAddTaskBinding? = null
     private lateinit var tasksDAO: TasksDAO
-
+    private lateinit var alarmManager: AlarmManager
+    private lateinit var pendingIntent: PendingIntent
+    private lateinit var calendar: Calendar
     private val binding get() = _binding!!
     private lateinit var TaskDetails: TaskDataModel
-    private lateinit var TaskTitle : String
-    private lateinit var TaskDescription : String
-    private lateinit var TaskCategory : String
-    private lateinit var TaskDateTime : String
-    private lateinit var TaskFrequency : String
-    private lateinit var TaskId : String
+    private lateinit var TaskTitle: String
+    private lateinit var TaskDescription: String
+    private lateinit var TaskCategory: String
+    private lateinit var TaskDateTime: String
+    private lateinit var TaskFrequency: String
+    private lateinit var TaskId: String
     private lateinit var categoryAdapter: ArrayAdapter<String>
     private lateinit var frequencyAdapter: ArrayAdapter<String>
 
@@ -68,15 +75,14 @@ class AddTaskFragment : Fragment() {
         frequencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.Frequency.adapter = frequencyAdapter
 
-        binding.dateAndTime.setOnClickListener{
+        binding.dateAndTime.setOnClickListener {
             showDateTimePicker(binding.dateAndTime)
         }
 
+        binding.SetReminderButton.setOnClickListener {
+            setData()
 
-        binding.SetReminderButton.setOnClickListener{
-            setData();
-
-            if(TaskDetails.id?.isNotEmpty() == true && TaskDetails.title?.isNotEmpty() == true && TaskDetails.description?.isNotEmpty() == true && TaskDetails.dateAndTime?.isNotEmpty() == true && TaskDetails.frequency?.isNotEmpty() == true && TaskDetails.category?.isNotEmpty() == true){
+            if (TaskDetails.id?.isNotEmpty() == true && TaskDetails.title?.isNotEmpty() == true && TaskDetails.description?.isNotEmpty() == true && TaskDetails.dateAndTime?.isNotEmpty() == true && TaskDetails.frequency?.isNotEmpty() == true && TaskDetails.category?.isNotEmpty() == true) {
                 lifecycleScope.launch {
                     tasksDAO.insertTask(TaskDetails)
                 }
@@ -87,14 +93,34 @@ class AddTaskFragment : Fragment() {
                 Toast.makeText(activity, "Please fill all the empty fields", Toast.LENGTH_LONG).show()
             }
 
+            setAlarm()
+        }
+    }
+
+    @SuppressLint("ScheduleExactAlarm")
+    private fun setAlarm() {
+        alarmManager = requireContext().getSystemService(ALARM_SERVICE) as AlarmManager
+
+        // Parse the date and time from the EditText
+        val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        val dateTime = dateTimeFormat.parse(TaskDateTime) ?: return
+        calendar = Calendar.getInstance().apply {
+            time = dateTime
         }
 
+        val intent = Intent(activity, AlarmReceiver::class.java).apply {
+            putExtra("TASK_TITLE", TaskTitle)
+        }
+        pendingIntent = PendingIntent.getBroadcast(activity, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+        Toast.makeText(activity, "Alarm set successfully", Toast.LENGTH_LONG).show()
     }
 
     private fun setData() {
         TaskId = generateId()
 
-        TaskTitle =  binding.title.text.toString()
+        TaskTitle = binding.title.text.toString()
         TaskDescription = binding.Description.text.toString()
         TaskCategory = binding.category.selectedItem.toString()
         TaskDateTime = binding.dateAndTime.text.toString()
@@ -112,7 +138,7 @@ class AddTaskFragment : Fragment() {
         binding.dateAndTime.showSoftInputOnFocus = false
         binding.dateAndTime.isClickable = true
 
-        val calendar = Calendar.getInstance()
+        calendar = Calendar.getInstance()
 
         val datePicker = DatePickerDialog(
             requireContext(),
