@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.timeit.app"
+    namespace = "com.timeit.io"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.timeit.app"
+        applicationId = "com.timeit.io"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

@@ -5,8 +5,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import com.timeit.app.DataModels.Category
-import com.timeit.app.DataModels.TaskDataModel
+import com.timeit.io.DataModels.Category
+import com.timeit.io.DataModels.TaskDataModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

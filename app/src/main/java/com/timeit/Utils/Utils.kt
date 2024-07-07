@@ -9,10 +9,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.timeit.Database.TasksDAO
-import com.timeit.app.Adapters.CategoryAdapter
-import com.timeit.app.DataModels.Category
-import com.timeit.app.DataModels.Day
-import com.timeit.app.R
+import com.timeit.io.Adapters.CategoryAdapter
+import com.timeit.io.DataModels.Category
+import com.timeit.io.DataModels.Day
+import com.timeit.io.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
