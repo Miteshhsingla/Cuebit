@@ -11,11 +11,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.DatePicker
 import android.widget.Spinner
 import android.widget.Toast
@@ -27,6 +26,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.tabs.TabLayout
 import com.timeit.Database.TasksDAO
 import com.timeit.Utils.Utils
 import com.timeit.app.Adapters.CategoryAdapter
@@ -68,6 +68,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     private lateinit var spinner: Spinner
     private var userName: String = ""
     private var userImage: Int = 0
+    private lateinit var tabMode: TabLayout
 
     private val taskInsertedReceiver = object : BroadcastReceiver() {
         @RequiresApi(Build.VERSION_CODES.O)
@@ -127,28 +128,30 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         binding?.recyclerView?.scrollToPosition(todayPosition)
 
         // Initialize Spinner
-        spinner = binding?.taskType ?: Spinner(requireContext())
-        val adapter = ArrayAdapter.createFromResource(
-            requireContext(),
-            R.array.task_types, android.R.layout.simple_spinner_item
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = adapter
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            @RequiresApi(Build.VERSION_CODES.O)
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                selectedDate?.let { loadTasksFromDatabase(it) }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
-        }
+        tabMode = binding!!.tabModeFAB
+        onTabSelection(tabMode)
+//        spinner = binding?.taskType ?: Spinner(requireContext())
+//        val adapter = ArrayAdapter.createFromResource(
+//            requireContext(),
+//            R.array.task_types, android.R.layout.simple_spinner_item
+//        )
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        spinner.adapter = adapter
+//        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            @RequiresApi(Build.VERSION_CODES.O)
+//            override fun onItemSelected(
+//                parent: AdapterView<*>?,
+//                view: View?,
+//                position: Int,
+//                id: Long
+//            ) {
+//                selectedDate?.let { loadTasksFromDatabase(it) }
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                // Do nothing
+//            }
+//        }
 
         // Set adapter for showing tasks and habits in RecyclerView
         tasks_habits_recycler = binding?.recylerViewTasks ?: RecyclerView(requireContext())
@@ -194,16 +197,46 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         }
     }
 
+    private fun onTabSelection(tabMode: TabLayout) {
+        try {
+            tabMode.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                @RequiresApi(Build.VERSION_CODES.O)
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    when (tab?.position) {
+                        0 -> { // Tasks Tab
+                            selectedDate?.let { loadTasksFromDatabase(it) }
+                        }
+                        1 -> { // Habits Tab
+                            selectedDate?.let { loadTasksFromDatabase(it) }
+                        }
+                    }
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab?) {
+
+                }
+
+                override fun onTabReselected(tab: TabLayout.Tab?) {
+
+                }
+            })
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error: ${e.message}", e)
+        }
+    }
+
     private fun setupRecyclerViewAdapter() {
-        val selectedType = spinner.selectedItem.toString()
-        if (selectedType == "Tasks") {
-            tasksAdapter = TasksAdapter(tasksList ?: mutableListOf(), requireContext())
-            binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
-            binding?.recylerViewTasks?.adapter = tasksAdapter
-        } else {
-            habitsAdapter = HabitsAdapter(habitsList ?: mutableListOf(), requireContext())
-            binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
-            binding?.recylerViewTasks?.adapter = habitsAdapter
+        when (getSelectedTabType()) {
+            TASKS_TAB -> {
+                tasksAdapter = TasksAdapter(tasksList ?: mutableListOf(), requireContext())
+                binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
+                binding?.recylerViewTasks?.adapter = tasksAdapter
+            }
+            HABITS_TAB -> {
+                habitsAdapter = HabitsAdapter(habitsList ?: mutableListOf(), requireContext())
+                binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
+                binding?.recylerViewTasks?.adapter = habitsAdapter
+            }
         }
     }
 
@@ -217,7 +250,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
     private fun setupSwipeToDelete() {
 
-        val selectedType = binding?.taskType?.selectedItem.toString()
+        val selectedType = binding!!.tabModeFAB.toString()
         val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -235,10 +268,9 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
                 when (direction) {
                     ItemTouchHelper.RIGHT -> {
                         // Mark task and habit as done
-                        if(selectedType == "Tasks"){
-                            markAsDone(position, taskId, selectedType)
-                        } else {
-                            markAsDone(position, habitId, selectedType)
+                        when (getSelectedTabType()) {
+                            TASKS_TAB -> markAsDone(position, taskId, "Tasks")
+                            HABITS_TAB -> markAsDone(position, habitId, "Habits")
                         }
                     }
                     ItemTouchHelper.LEFT -> {
@@ -389,6 +421,10 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         binding!!.selectedDayText.text = monthYearText
     }
 
+    private fun getSelectedTabType(): Int {
+        return tabMode.selectedTabPosition
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
@@ -435,32 +471,29 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     private fun loadTasksFromDatabase(selectedDate: Day) {
         val calendar = Calendar.getInstance()
         calendar[selectedDate.year, getMonthIndex(selectedDate.dayMonth)] = selectedDate.dayNumber
-        val formattedDate =
-            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
-        val selectedType = binding?.taskType?.selectedItem.toString()
+        val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
         val scope: CoroutineScope = CoroutineScope(Main)
         scope.launch {
             withContext(Dispatchers.IO) {
                 tasksList!!.clear()
                 habitsList!!.clear()
-                if (selectedType == "Habits") {
-                    habitsList!!.addAll(tasksDAO!!.getHabitsForDate(formattedDate))
-                } else {
-                    tasksList!!.addAll(tasksDAO!!.getTasksForDate(formattedDate))
+                when (getSelectedTabType()) {
+                    HABITS_TAB -> habitsList!!.addAll(tasksDAO!!.getHabitsForDate(formattedDate))
+                    TASKS_TAB -> tasksList!!.addAll(tasksDAO!!.getTasksForDate(formattedDate))
+                    else -> {}
                 }
             }
             setupRecyclerViewAdapter()
-            if (selectedType == "Habits") {
-                habitsAdapter?.notifyDataSetChanged()
-            } else {
-                tasksAdapter?.notifyDataSetChanged()
+            when (getSelectedTabType()) {
+                HABITS_TAB -> habitsAdapter?.notifyDataSetChanged()
+                TASKS_TAB -> tasksAdapter?.notifyDataSetChanged()
             }
-            updateRecyclerViewVisibility(selectedType)
+            updateRecyclerViewVisibility(getSelectedTabType())
         }
     }
 
-    private fun updateRecyclerViewVisibility(selectedType: String) {
-        if (selectedType == "Tasks") {
+    private fun updateRecyclerViewVisibility(selectedType: Int) {
+        if (selectedType == 0) {
             if (tasksList!!.isNotEmpty()) {
                 binding!!.emptyState.isVisible = false
                 binding!!.recylerViewTasks.isVisible = true
@@ -512,4 +545,10 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         binding!!.categoryRecyclerView.layoutManager = LinearLayoutManager(activity,LinearLayoutManager.HORIZONTAL,false)
         binding!!.categoryRecyclerView.adapter = categoryAdapter
     }
+
+    companion object {
+        private const val TASKS_TAB = 0
+        private const val HABITS_TAB = 1
+    }
+
 }
