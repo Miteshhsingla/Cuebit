@@ -117,21 +117,37 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="10dp"
-            android:gravity="end"
-            >
+            android:gravity="center">
 
-            <Spinner
-                android:id="@+id/taskType"
-                style="@style/TitleSelectedDate"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/plusjakarta_semibold"
-                android:padding="8dp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:text="Tasks" />
+                android:layout_margin="10dp">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabModeFAB"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabGravity="fill"
+                    app:tabRippleColor="@null"
+                    android:background="@drawable/tab_color_selector"
+                    app:tabBackground="@drawable/tab_color_selector"
+                    app:tabSelectedTextColor="@color/white"
+                    app:tabTextColor="@color/black"
+                    app:tabIndicator="@null"
+                    app:tabMode="fixed">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Tasks" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Habits" />
+                </com.google.android.material.tabs.TabLayout>
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -185,7 +201,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:layout_margin="20dp"
                 android:textAlignment="center"
                 android:fontFamily="@font/plusjakarta_medium"
