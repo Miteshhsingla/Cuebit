@@ -130,13 +130,14 @@
                 android:textSize="18sp"
                 android:fontFamily="@font/plusjakarta_semibold"/>
 
-            <Spinner
-                android:id="@+id/Frequency"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_days"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/plusjakarta_medium"
-                android:layout_marginTop="10dp"
-                android:hint="Select Frequency"/>
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                tools:listitem="@layout/frequency_day_item"
+                android:padding="8dp"/>
         </LinearLayout>
 
         <TextView
