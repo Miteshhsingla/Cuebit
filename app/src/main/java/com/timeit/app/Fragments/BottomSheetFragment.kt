@@ -68,7 +68,7 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
                 override fun onTabSelected(tab: TabLayout.Tab?) {
                     val fragment = when (tab?.position) {
                         0 -> AddTaskFragment.newInstance()
-                        1 -> HabitsFragment.newInstance()
+                        1 -> AddHabitsFragment.newInstance()
                         else -> null
                     }
 

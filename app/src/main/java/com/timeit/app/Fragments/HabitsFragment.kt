@@ -19,7 +19,7 @@ class HabitsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var habitsAdapter: HabitsAdapter
     @RequiresApi(Build.VERSION_CODES.O)
-    private val habitslist: List<HabitDataModel> = Habits.habits
+    private val habitslist: MutableList<HabitDataModel> = Habits.habits.toMutableList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

@@ -9,6 +9,9 @@
     <string name="Description">Description</string>
     <string name="Category">Category</string>
     <string name="Date_Time">Date &amp; Time</string>
+    <string name="Date">Start Date</string>
+    <string name="Time">Time</string>
+    <string name="Goal">Goal</string>
     <string name="Frequency">Frequency</string>
     <string name="CreateTask">Set Reminder</string>
     <string name="SetAvatar">Choose Avatar</string>

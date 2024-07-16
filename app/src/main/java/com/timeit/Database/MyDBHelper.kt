@@ -8,7 +8,7 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     companion object {
         private const val DATABASE_NAME = "MY_DATABASE"
-        private const val DATABASE_VERSION = 4
+        private const val DATABASE_VERSION = 5
 
         // Table and column names for tasks
         const val TABLE_TASKS = "tasks"
@@ -20,7 +20,6 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
         const val COLUMN_FREQUENCY = "frequency"
         const val COLUMN_TASK_STATUS = "isDone"
 
-
         // Table and column names for users
         const val TABLE_USERS = "users"
         const val COLUMN_USER_NAME = "name"
@@ -29,6 +28,18 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
         const val TABLE_CATEGORIES = "categories"
         const val COLUMN_CATEGORY_ID = "categoryId"
         const val COLUMN_CATEGORY_NAME = "categoryName"
+
+        // Table and column names for Habits
+        const val TABLE_HABITS = "habits"
+        const val COLUMN_HABIT_ID = "id"
+        const val COLUMN_HABIT_TITLE = "title"
+        const val COLUMN_HABIT_DESCRIPTION = "description"
+        const val COLUMN_HABIT_GOAL = "goal"
+        const val COLUMN_HABIT_DATE = "startDate"
+        const val COLUMN_HABIT_REMINDER = "reminder"
+        const val COLUMN_HABIT_FREQUENCY = "frequency"
+        const val COLUMN_HABIT_IMAGE = "image"
+        const val COLUMN_HABIT_STATUS = "isDone"
     }
 
     private val TABLE_CREATE_TASKS = """
@@ -57,10 +68,26 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
         );
     """.trimIndent()
 
+    private val TABLE_CREATE_HABITS = """
+        CREATE TABLE $TABLE_HABITS (
+            $COLUMN_HABIT_ID TEXT PRIMARY KEY, 
+            $COLUMN_HABIT_TITLE TEXT, 
+            $COLUMN_HABIT_DESCRIPTION TEXT, 
+            $COLUMN_HABIT_GOAL TEXT,
+            $COLUMN_HABIT_DATE TEXT,
+            $COLUMN_HABIT_REMINDER TEXT,
+            $COLUMN_HABIT_FREQUENCY TEXT,
+            $COLUMN_HABIT_IMAGE INT,
+            $COLUMN_HABIT_STATUS TEXT
+
+        );
+    """.trimIndent()
+
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(TABLE_CREATE_TASKS)
         db?.execSQL(TABLE_CREATE_USERS)
         db?.execSQL(TABLE_CREATE_CATEGORIES)
+        db?.execSQL(TABLE_CREATE_HABITS)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -68,9 +95,13 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_TASKS")
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_CATEGORIES")
+            onCreate(db)
         }
-        if (oldVersion < 4 && newVersion > 3) {
+        if (oldVersion < 4) {
             db?.execSQL("ALTER TABLE $TABLE_TASKS ADD COLUMN $COLUMN_TASK_STATUS TEXT")
+        }
+        if (oldVersion < 5) {
+           db?.execSQL(TABLE_CREATE_HABITS)
         }
 //        onCreate(db)
     }

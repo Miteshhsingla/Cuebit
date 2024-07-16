@@ -9,9 +9,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.timeit.app.DataModels.HabitDataModel
+import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.R
 
-class HabitsAdapter(var habitsList: List<HabitDataModel>, var context: Context): RecyclerView.Adapter<HabitsAdapter.habitViewHolder>() {
+class HabitsAdapter(var habitsList: MutableList<HabitDataModel>, var context: Context): RecyclerView.Adapter<HabitsAdapter.habitViewHolder>() {
 
     class habitViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.taskTitle)
@@ -22,6 +23,15 @@ class HabitsAdapter(var habitsList: List<HabitDataModel>, var context: Context):
         val view: View = LayoutInflater.from(parent.context)
             .inflate(R.layout.task_item, parent, false)
         return habitViewHolder(view)
+    }
+
+    fun getItem(position: Int): HabitDataModel {
+        return habitsList[position]
+    }
+
+    fun removeItem(position: Int) {
+        habitsList.removeAt(position)
+        notifyItemRemoved(position)
     }
 
     override fun getItemCount(): Int {

@@ -5,7 +5,10 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.timeit.app.DataModels.Category
+import com.timeit.app.DataModels.HabitDataModel
 import com.timeit.app.DataModels.TaskDataModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -253,9 +256,62 @@ class TasksDAO(context: Context?) {
         }
     }
 
+    suspend fun insertHabit(habit: HabitDataModel) {
+        withContext(Dispatchers.IO) {
+            contentValues.clear()
+            contentValues.apply {
+                put(MyDBHelper.COLUMN_HABIT_ID, habit.id)
+                put(MyDBHelper.COLUMN_HABIT_TITLE, habit.habitName)
+                put(MyDBHelper.COLUMN_HABIT_DESCRIPTION, habit.description)
+                put(MyDBHelper.COLUMN_HABIT_GOAL, habit.goal)
+                put(MyDBHelper.COLUMN_HABIT_DATE, habit.startDate)
+                put(MyDBHelper.COLUMN_HABIT_REMINDER, habit.reminder)
+                put(MyDBHelper.COLUMN_HABIT_FREQUENCY, habit.frequency)
+                put(MyDBHelper.COLUMN_HABIT_IMAGE, habit.image)
+                put(MyDBHelper.COLUMN_HABIT_STATUS, habit.isCompleted)
+            }
+            database.insert(MyDBHelper.TABLE_HABITS, null, contentValues)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("Range")
+    suspend fun getHabitsForDate(date: String): List<HabitDataModel> {
+        return withContext(Dispatchers.IO) {
+            val query =
+                "SELECT * FROM ${MyDBHelper.TABLE_HABITS} WHERE ${MyDBHelper.COLUMN_HABIT_DATE} = ? AND ${MyDBHelper.COLUMN_HABIT_STATUS} = '0'"
+
+            val habitsList = mutableListOf<HabitDataModel>()
+            val cursor = database.rawQuery(query, arrayOf(date))
+            cursor.use {
+                while (it.moveToNext()) {
+                    habitsList.add(
+                        HabitDataModel(
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_HABIT_ID)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_HABIT_TITLE)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_HABIT_DESCRIPTION)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_HABIT_FREQUENCY)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_HABIT_STATUS)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_HABIT_REMINDER)),
+                            it.getInt(it.getColumnIndex(MyDBHelper.COLUMN_HABIT_IMAGE)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_HABIT_GOAL)),
+                            it.getString(it.getColumnIndex(MyDBHelper.COLUMN_HABIT_DATE))
+
+                        )
+                    )
+                }
+            }
+            habitsList
+        }
+    }
+
+    suspend fun markHabitAsDone(id: String) {
+        withContext(Dispatchers.IO) {
+            val contentValues = ContentValues().apply {
+                put(MyDBHelper.COLUMN_HABIT_STATUS, "1")
+            }
+            database.update(MyDBHelper.TABLE_HABITS, contentValues, "${MyDBHelper.COLUMN_HABIT_ID} = ?", arrayOf(id))
+        }
+    }
+
 }
-
-
-
-
-

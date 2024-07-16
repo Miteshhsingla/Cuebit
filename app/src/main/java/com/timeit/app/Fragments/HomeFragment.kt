@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +17,9 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.DatePicker
+import android.widget.Spinner
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -28,15 +31,19 @@ import com.timeit.Database.TasksDAO
 import com.timeit.Utils.Utils
 import com.timeit.app.Adapters.CategoryAdapter
 import com.timeit.app.Adapters.DateAdapter
+import com.timeit.app.Adapters.HabitsAdapter
 import com.timeit.app.Adapters.TasksAdapter
 import com.timeit.app.DataModels.Category
 import com.timeit.app.DataModels.Day
+import com.timeit.app.DataModels.HabitDataModel
 import com.timeit.app.DataModels.TaskDataModel
 import com.timeit.app.R
 import com.timeit.app.databinding.FragmentHomeBinding
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -51,15 +58,19 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     private var selectedDate: Day? = null
     private var currentWeekStart = Calendar.getInstance()
     private var tasksList: MutableList<TaskDataModel>? = null
+    private var habitsList: MutableList<HabitDataModel>? = null
     private var tasksDAO: TasksDAO? = null
     private var tasksAdapter: TasksAdapter? = null
+    private var habitsAdapter: HabitsAdapter? = null
     private lateinit var categoryAdapter : CategoryAdapter
-    private lateinit var tasksrecycler: RecyclerView
+    private lateinit var tasks_habits_recycler: RecyclerView
     private lateinit var categoryList : MutableList<Category>
+    private lateinit var spinner: Spinner
     private var userName: String = ""
     private var userImage: Int = 0
 
     private val taskInsertedReceiver = object : BroadcastReceiver() {
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun onReceive(context: Context?, intent: Intent?) {
             // Load tasks again when a new task is inserted
             selectedDate?.let { loadTasksFromDatabase(it) }
@@ -74,6 +85,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         return binding!!.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -81,8 +93,8 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         val sharedPreferences = requireContext().getSharedPreferences("com.timeit.app", Context.MODE_PRIVATE)
         if (sharedPreferences != null) {
             userName = sharedPreferences.getString("userName", "").toString()
-            userImage = sharedPreferences.getInt("selectedAvatar",0)
-            binding?.greetingUsername?.text = "Hey, " + userName + " 👋"
+            userImage = sharedPreferences.getInt("selectedAvatar", 0)
+            binding?.greetingUsername?.text = "Hey, $userName 👋"
             binding?.userImage?.setImageResource(userImage)
         }
 
@@ -94,57 +106,78 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         // Calendar Adapter setup
         selectedDate = utils.getDayFromDate(Calendar.getInstance())
         dateAdapter = DateAdapter(generateWeekDays(currentWeekStart))
-        binding!!.recyclerView.layoutManager = GridLayoutManager(context, 7)
-        binding!!.recyclerView.adapter = dateAdapter
+        binding?.recyclerView?.layoutManager = GridLayoutManager(context, 7)
+        binding?.recyclerView?.adapter = dateAdapter
 
         // Initialize taskList and taskDao
         tasksList = mutableListOf()
+        habitsList = mutableListOf()  // Initialize habitsList here
         tasksDAO = TasksDAO(requireContext())
 
         // Calendar arrows for scrolling weeks
-        binding!!.leftArrow.setOnClickListener { v -> showPreviousWeek() }
-        binding!!.rightArrow.setOnClickListener { v -> showNextWeek() }
+        binding?.leftArrow?.setOnClickListener { showPreviousWeek() }
+        binding?.rightArrow?.setOnClickListener { showNextWeek() }
 
         // To show today's date in the calendar
         val today = Calendar.getInstance()[Calendar.DAY_OF_WEEK] - 1
-        dateAdapter!!.updateSelected(today)
-        val todayPosition = getTodayPosition(dateAdapter!!.dateItemList)
+        dateAdapter?.updateSelected(today)
+        val todayPosition = getTodayPosition(dateAdapter?.dateItemList ?: emptyList())
         selectedDayPosition = todayPosition
-        dateAdapter!!.updateSelected(todayPosition)
-        binding!!.recyclerView.scrollToPosition(todayPosition)
+        dateAdapter?.updateSelected(todayPosition)
+        binding?.recyclerView?.scrollToPosition(todayPosition)
 
-        // Set adapter for showing tasks in RecyclerView
-        tasksrecycler = binding!!.recylerViewTasks
+        // Initialize Spinner
+        spinner = binding?.taskType ?: Spinner(requireContext())
+        val adapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.task_types, android.R.layout.simple_spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                selectedDate?.let { loadTasksFromDatabase(it) }
+            }
 
-        tasksAdapter = TasksAdapter(tasksList!!, requireContext())
-        binding!!.recylerViewTasks.layoutManager = LinearLayoutManager(context)
-        binding!!.recylerViewTasks.adapter = tasksAdapter
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+        }
+
+        // Set adapter for showing tasks and habits in RecyclerView
+        tasks_habits_recycler = binding?.recylerViewTasks ?: RecyclerView(requireContext())
+
+        setupRecyclerViewAdapter()
         setupSwipeToDelete()
 
-
         // On click for clicking on date in the calendar
-        dateAdapter!!.setOnItemClickListener { position: Int ->
+        dateAdapter?.setOnItemClickListener { position: Int ->
             selectedDayPosition = position
-            dateAdapter!!.updateSelected(position)
-            selectedDate = dateAdapter!!.dateItemList[position]
-            binding!!.selectedDayText.text = String.format(
+            dateAdapter?.updateSelected(position)
+            selectedDate = dateAdapter?.dateItemList?.get(position)
+            binding?.selectedDayText?.text = String.format(
                 "%s %s",
-                selectedDate!!.dayMonth,
-                selectedDate!!.year
+                selectedDate?.dayMonth,
+                selectedDate?.year
             )
-            loadTasksFromDatabase(selectedDate!!)
+            selectedDate?.let { loadTasksFromDatabase(it) }
         }
 
         // On clicking month name
-        binding!!.monthtext.setOnClickListener {
+        binding?.monthtext?.setOnClickListener {
             showDatePickerDialog()
         }
 
         // Method to show current month by default
         setCurrentMonth(currentWeekStart)
-//        loadTasksFromDatabase(selectedDate)
 
-        //Initialize Category Adapter
+        // Initialize Category Adapter
         categoryList = mutableListOf()
         CoroutineScope(Main).launch {
             if (!tasksDAO!!.isCategoryExist("All")) {
@@ -156,31 +189,21 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
             }
         }
 
-        binding!!.AddCategory.setOnClickListener{
+        binding?.AddCategory?.setOnClickListener {
             utils.showAddCategoryDialog(requireContext(), categoryAdapter)
         }
+    }
 
-        // Initialize Spinner
-        val spinner = binding!!.taskType
-        val adapter = ArrayAdapter.createFromResource(
-            requireContext(),
-            R.array.task_types, android.R.layout.simple_spinner_item
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = adapter
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                loadTasksFromDatabase(selectedDate!!)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
+    private fun setupRecyclerViewAdapter() {
+        val selectedType = spinner.selectedItem.toString()
+        if (selectedType == "Tasks") {
+            tasksAdapter = TasksAdapter(tasksList ?: mutableListOf(), requireContext())
+            binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
+            binding?.recylerViewTasks?.adapter = tasksAdapter
+        } else {
+            habitsAdapter = HabitsAdapter(habitsList ?: mutableListOf(), requireContext())
+            binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
+            binding?.recylerViewTasks?.adapter = habitsAdapter
         }
     }
 
@@ -193,6 +216,8 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     }
 
     private fun setupSwipeToDelete() {
+
+        val selectedType = binding?.taskType?.selectedItem.toString()
         val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -205,11 +230,16 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val taskId = tasksAdapter?.getItem(position)?.id ?: return
+                val habitId = habitsAdapter?.getItem(position)?.id ?: return
 
                 when (direction) {
                     ItemTouchHelper.RIGHT -> {
-                        // Mark task as done
-                        markTaskAsDone(position, taskId)
+                        // Mark task and habit as done
+                        if(selectedType == "Tasks"){
+                            markAsDone(position, taskId, selectedType)
+                        } else {
+                            markAsDone(position, habitId, selectedType)
+                        }
                     }
                     ItemTouchHelper.LEFT -> {
                         // Show delete confirmation dialog
@@ -279,18 +309,22 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         }
 
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
-        itemTouchHelper.attachToRecyclerView(tasksrecycler)
+        itemTouchHelper.attachToRecyclerView(tasks_habits_recycler)
     }
 
-    private fun markTaskAsDone(position: Int, taskId: String) {
+    private fun markAsDone(position: Int, id: String, selectedType: String) {
         CoroutineScope(Main).launch {
-            tasksDAO?.markTaskAsDone(taskId)
-            tasksAdapter?.removeItem(position)  // Or update the item status and notify changes
-            Toast.makeText(activity, "Task marked as done", Toast.LENGTH_SHORT).show()
+            if(selectedType == "Tasks"){
+                tasksDAO?.markTaskAsDone(id)
+                tasksAdapter?.removeItem(position)  // Or update the item status and notify changes
+                Toast.makeText(activity, "Task marked as done", Toast.LENGTH_SHORT).show()
+            } else {
+                tasksDAO?.markHabitAsDone(id)
+                habitsAdapter?.removeItem(position)  // Or update the item status and notify changes
+                Toast.makeText(activity, "Habit marked as done", Toast.LENGTH_SHORT).show()
+            }
         }
     }
-
-
 
     private fun showDeleteConfirmationDialog(position: Int,taskId:String) {
         val builder = AlertDialog.Builder(requireContext())
@@ -355,6 +389,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         binding!!.selectedDayText.text = monthYearText
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
         val year = calendar[Calendar.YEAR]
@@ -396,6 +431,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         datePickerDialog.show()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun loadTasksFromDatabase(selectedDate: Day) {
         val calendar = Calendar.getInstance()
         calendar[selectedDate.year, getMonthIndex(selectedDate.dayMonth)] = selectedDate.dayNumber
@@ -404,28 +440,42 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         val selectedType = binding?.taskType?.selectedItem.toString()
         val scope: CoroutineScope = CoroutineScope(Main)
         scope.launch {
-            tasksList!!.clear()
-            if ("Habits" == selectedType) {
-//                tasksList!!.addAll(tasksDAO.getHabitsForDate(formattedDate))
-            } else {
-                tasksList!!.addAll(tasksDAO!!.getTasksForDate(formattedDate))
+            withContext(Dispatchers.IO) {
+                tasksList!!.clear()
+                habitsList!!.clear()
+                if (selectedType == "Habits") {
+                    habitsList!!.addAll(tasksDAO!!.getHabitsForDate(formattedDate))
+                } else {
+                    tasksList!!.addAll(tasksDAO!!.getTasksForDate(formattedDate))
+                }
             }
-            if(tasksList!!.isNotEmpty()){
+            setupRecyclerViewAdapter()
+            if (selectedType == "Habits") {
+                habitsAdapter?.notifyDataSetChanged()
+            } else {
+                tasksAdapter?.notifyDataSetChanged()
+            }
+            updateRecyclerViewVisibility(selectedType)
+        }
+    }
+
+    private fun updateRecyclerViewVisibility(selectedType: String) {
+        if (selectedType == "Tasks") {
+            if (tasksList!!.isNotEmpty()) {
                 binding!!.emptyState.isVisible = false
                 binding!!.recylerViewTasks.isVisible = true
-                tasksAdapter!!.notifyDataSetChanged()
-            }
-            else{
-                tasksAdapter!!.notifyDataSetChanged()
-                binding!!.recylerViewTasks.isVisible = false
+            } else {
                 binding!!.emptyState.isVisible = true
+                binding!!.recylerViewTasks.isVisible = false
             }
-//            if (tasksList!!.isEmpty()) {
-//                binding!!.recylerViewTasks.visibility = View.GONE
-//
-//            } else {
-//                binding!!.recylerViewTasks.visibility = View.VISIBLE
-//            }
+        } else {
+            if (habitsList!!.isNotEmpty()) {
+                binding!!.emptyState.isVisible = false
+                binding!!.recylerViewTasks.isVisible = true
+            } else {
+                binding!!.emptyState.isVisible = true
+                binding!!.recylerViewTasks.isVisible = false
+            }
         }
     }
 
