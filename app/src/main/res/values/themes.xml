@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.TimeIt" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+         <item name="android:colorPrimaryDark">@color/bg_white</item>
     </style>
 
     <style name="Theme.TimeIt" parent="Base.Theme.TimeIt" />

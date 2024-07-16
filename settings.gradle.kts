@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TimeIt"
+rootProject.name = "Cuebit"
 include(":app")
  
