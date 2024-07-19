@@ -308,6 +308,12 @@ class TasksDAO(context: Context?) {
         }
     }
 
+    suspend fun deleteHabit(id: String) {
+        withContext(Dispatchers.IO) {
+            database.delete(MyDBHelper.TABLE_HABITS, "${MyDBHelper.COLUMN_HABIT_ID} = ?", arrayOf(id))
+        }
+    }
+
     suspend fun markHabitAsDone(id: String) {
         withContext(Dispatchers.IO) {
             val contentValues = ContentValues().apply {
