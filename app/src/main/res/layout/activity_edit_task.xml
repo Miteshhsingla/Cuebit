@@ -155,12 +155,15 @@
                 android:textSize="18sp"
                 android:fontFamily="@font/plusjakarta_semibold"/>
 
-            <EditText
-                android:id="@+id/Frequency"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_days"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/EditTextField"
-                android:hint="Select Frequency"/>
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                tools:listitem="@layout/frequency_day_item"
+                android:padding="8dp"/>
         </LinearLayout>
 
         <TextView

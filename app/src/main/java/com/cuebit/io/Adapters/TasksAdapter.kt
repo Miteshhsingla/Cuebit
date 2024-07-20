@@ -58,10 +58,12 @@ class TasksAdapter(private var tasksList: MutableList<TaskDataModel>, private va
 
         holder.itemView.setOnClickListener {
             val intent = Intent(context, EditTaskActivity::class.java)
+            intent.putExtra("TASK_ID", task.id)
             intent.putExtra("TASK_TITLE", task.title)
             intent.putExtra("TASK_DESCRIPTION", task.description)
             intent.putExtra("TASK_DATE_TIME", task.dateAndTime)
             intent.putExtra("TASK_CATEGORY", task.category)
+            intent.putExtra("TASK_FREQUENCY", task.frequency)
             context.startActivity(intent)
         }
 
