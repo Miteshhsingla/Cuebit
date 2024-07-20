@@ -65,7 +65,6 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     private lateinit var categoryAdapter : CategoryAdapter
     private lateinit var tasks_habits_recycler: RecyclerView
     private lateinit var categoryList : MutableList<Category>
-    private lateinit var spinner: Spinner
     private var userName: String = ""
     private var userImage: Int = 0
     private lateinit var tabMode: TabLayout
@@ -130,28 +129,6 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         // Initialize Spinner
         tabMode = binding!!.tabModeFAB
         onTabSelection(tabMode)
-//        spinner = binding?.taskType ?: Spinner(requireContext())
-//        val adapter = ArrayAdapter.createFromResource(
-//            requireContext(),
-//            R.array.task_types, android.R.layout.simple_spinner_item
-//        )
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        spinner.adapter = adapter
-//        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            @RequiresApi(Build.VERSION_CODES.O)
-//            override fun onItemSelected(
-//                parent: AdapterView<*>?,
-//                view: View?,
-//                position: Int,
-//                id: Long
-//            ) {
-//                selectedDate?.let { loadTasksFromDatabase(it) }
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                // Do nothing
-//            }
-//        }
 
         // Set adapter for showing tasks and habits in RecyclerView
         tasks_habits_recycler = binding?.recylerViewTasks ?: RecyclerView(requireContext())
@@ -195,6 +172,8 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         binding?.AddCategory?.setOnClickListener {
             utils.showAddCategoryDialog(requireContext(), categoryAdapter)
         }
+
+        selectedDate?.let { loadTasksFromDatabase(it) }
     }
 
     private fun onTabSelection(tabMode: TabLayout) {
@@ -250,7 +229,6 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
     private fun setupSwipeToDelete() {
 
-        val selectedType = binding!!.tabModeFAB.toString()
         val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -582,7 +560,6 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        tasksDAO?.close()
         binding = null
     }
 
