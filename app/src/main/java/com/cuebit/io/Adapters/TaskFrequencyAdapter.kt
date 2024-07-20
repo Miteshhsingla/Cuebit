@@ -7,15 +7,47 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.cuebit.io.R
+import java.util.ArrayList
+import java.util.Calendar
 
-class TaskFrequencyAdapter : RecyclerView.Adapter<TaskFrequencyAdapter.DayViewHolder>() {
+class TaskFrequencyAdapter(selectedFrequency: ArrayList<String>?) : RecyclerView.Adapter<TaskFrequencyAdapter.DayViewHolder>() {
 
     private val days = listOf("M", "T", "W", "T", "F", "S", "S")
-    private val selectedDays = BooleanArray(days.size) { true }
+    private val selectedDays = BooleanArray(days.size) { false }
+    private val currentDayIndex = getCurrentDayIndex()
     private val selectedDayList = mutableListOf<String>().apply {
         addAll(days) // Initially add all days since all are selected by default
     }
 
+    init {
+        selectedDays[currentDayIndex] = true // Highlight the current day by default
+        selectedDayList.add(days[currentDayIndex])
+
+        // Highlight days from selectedFrequency if it's not null
+        selectedFrequency?.forEach { frequency ->
+            days.indexOf(frequency).takeIf { it >= 0 }?.let { index ->
+                selectedDays[index] = true
+                if (!selectedDayList.contains(frequency)) {
+                    selectedDayList.add(frequency)
+                }
+            }
+        }
+    }
+
+    private fun getCurrentDayIndex(): Int {
+        val calendar = Calendar.getInstance()
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        return when (dayOfWeek) {
+            Calendar.SUNDAY -> 6
+            Calendar.MONDAY -> 0
+            Calendar.TUESDAY -> 1
+            Calendar.WEDNESDAY -> 2
+            Calendar.THURSDAY -> 3
+            Calendar.FRIDAY -> 4
+            Calendar.SATURDAY -> 5
+            else -> 0
+        } // Adjusting for list index starting at 0
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.frequency_day_item, parent, false)
         return DayViewHolder(view)

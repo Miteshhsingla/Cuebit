@@ -1,6 +1,7 @@
 package com.cuebit.io.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.pm.PackageManager
@@ -73,4 +74,10 @@ class MainActivity : AppCompatActivity() {
         transaction.replace(R.id.fragmentContainerView, fragment)
         transaction.commit()
     }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        finishAffinity()
+    }
+
 }

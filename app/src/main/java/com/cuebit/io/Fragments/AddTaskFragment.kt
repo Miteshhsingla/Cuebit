@@ -73,7 +73,7 @@ class AddTaskFragment : Fragment() {
         // Initialize Frequency Spinner Adapter And Showing Data in Spinner
         val recyclerViewDays = binding.recyclerViewDays
         recyclerViewDays.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-        taskFrequencyAdapter = TaskFrequencyAdapter()
+        taskFrequencyAdapter = TaskFrequencyAdapter(null)
         binding.recyclerViewDays.adapter = taskFrequencyAdapter
 
         binding.dateAndTime.setOnClickListener {

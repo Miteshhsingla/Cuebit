@@ -87,7 +87,7 @@ class AddHabitsFragment : Fragment() {
                         tasksDAO.insertHabit(HabitDetails)
                         Toast.makeText(activity, "Habit Created Successfully", Toast.LENGTH_LONG).show()
                         // Send broadcast to notify task insertion
-                        val intentHomeFragment = Intent("com.cuebit.app.ACTION_HABIT_INSERTED")
+                        val intentHomeFragment = Intent("com.cuebit.app.ACTION_TASK_INSERTED")
                         requireContext().sendBroadcast(intentHomeFragment)
 
                         // Dismiss bottom sheet
