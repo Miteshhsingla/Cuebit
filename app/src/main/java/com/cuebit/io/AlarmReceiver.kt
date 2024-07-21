@@ -23,7 +23,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val taskTitle = intent.getStringExtra("TASK_TITLE") ?: "Task Reminder"
 
         val builder = NotificationCompat.Builder(context, "TimeIt")
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(taskTitle)
             .setContentText("It's time for your task: $taskTitle")
             .setAutoCancel(true)

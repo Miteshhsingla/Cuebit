@@ -5,9 +5,13 @@ import android.app.AlarmManager
 import android.app.DatePickerDialog
 import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -110,7 +114,16 @@ class AddTaskFragment : Fragment() {
 
     @SuppressLint("ScheduleExactAlarm")
     private fun setAlarm() {
-        alarmManager = requireContext().getSystemService(ALARM_SERVICE) as AlarmManager
+        alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // Check if SCHEDULE_EXACT_ALARM permission is granted
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                requestExactAlarmPermission()
+                return
+            }
+        }
+
 
         // Parse the date and time from the EditText
         val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
@@ -127,6 +140,17 @@ class AddTaskFragment : Fragment() {
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
         Toast.makeText(activity, "Alarm set successfully", Toast.LENGTH_LONG).show()
     }
+
+    private fun requestExactAlarmPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                data = Uri.parse("package:${requireContext().packageName}")
+            }
+            startActivity(intent)
+        }
+    }
+
+
 
     private fun setData() {
         TaskId = generateId()
