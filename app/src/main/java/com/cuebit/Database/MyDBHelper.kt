@@ -8,7 +8,7 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     companion object {
         private const val DATABASE_NAME = "MY_DATABASE"
-        private const val DATABASE_VERSION = 5
+        private const val DATABASE_VERSION = 6
 
         // Table and column names for tasks
         const val TABLE_TASKS = "tasks"
@@ -40,6 +40,13 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
         const val COLUMN_HABIT_FREQUENCY = "frequency"
         const val COLUMN_HABIT_IMAGE = "image"
         const val COLUMN_HABIT_STATUS = "isDone"
+
+        // Table and column names for Alarms
+        const val TABLE_ALARMS = "alarms"
+        const val COLUMN_ALARM_ID = "alarmId"
+        const val COLUMN_TASK_HABIT_ID = "id"
+        const val COLUMN_ALARM_DATE = "date"
+        const val COLUMN_ALARM_TIME = "time"
     }
 
     private val TABLE_CREATE_TASKS = """
@@ -83,11 +90,21 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
         );
     """.trimIndent()
 
+    private val TABLE_CREATE_ALARMS = """
+        CREATE TABLE $TABLE_ALARMS (
+            $COLUMN_ALARM_ID TEXT PRIMARY KEY, 
+            $COLUMN_TASK_HABIT_ID TEXT,
+            $COLUMN_ALARM_DATE TEXT,
+            $COLUMN_ALARM_TIME TEXT
+        );
+    """.trimIndent()
+
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(TABLE_CREATE_TASKS)
         db?.execSQL(TABLE_CREATE_USERS)
         db?.execSQL(TABLE_CREATE_CATEGORIES)
         db?.execSQL(TABLE_CREATE_HABITS)
+        db?.execSQL(TABLE_CREATE_ALARMS)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -102,6 +119,9 @@ class MyDBHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, n
         }
         if (oldVersion < 5) {
            db?.execSQL(TABLE_CREATE_HABITS)
+        }
+        if(oldVersion < 6) {
+            db?.execSQL(TABLE_CREATE_ALARMS)
         }
 //        onCreate(db)
     }

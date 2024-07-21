@@ -31,6 +31,7 @@ import com.cuebit.io.Adapters.CategoryAdapter
 import com.cuebit.io.Adapters.DateAdapter
 import com.cuebit.io.Adapters.HabitsAdapter
 import com.cuebit.io.Adapters.TasksAdapter
+import com.cuebit.io.AlarmReceiver
 import com.cuebit.io.DataModels.Category
 import com.cuebit.io.DataModels.Day
 import com.cuebit.io.DataModels.HabitDataModel
@@ -67,6 +68,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     private var userName: String = ""
     private var userImage: Int = 0
     private lateinit var tabMode: TabLayout
+    private lateinit var alarmReceiver: AlarmReceiver
 
     private val taskInsertedReceiver = object : BroadcastReceiver() {
         @RequiresApi(Build.VERSION_CODES.O)
@@ -112,6 +114,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         tasksList = mutableListOf()
         habitsList = mutableListOf()  // Initialize habitsList here
         tasksDAO = TasksDAO(requireContext())
+        alarmReceiver = AlarmReceiver()
 
         // Calendar arrows for scrolling weeks
         binding?.leftArrow?.setOnClickListener { showPreviousWeek() }
@@ -364,6 +367,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
                     tasksAdapter?.removeItem(position)
                     CoroutineScope(Main).launch {
                         tasksDAO?.deleteTask(id)
+                        alarmReceiver.cancelAlarm(requireContext(), id)
                         Toast.makeText(activity, "Task Deleted Successfully", Toast.LENGTH_LONG)
                             .show()
                     }

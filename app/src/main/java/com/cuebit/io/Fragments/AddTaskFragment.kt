@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.cuebit.Database.TasksDAO
 import com.cuebit.io.Adapters.TaskFrequencyAdapter
 import com.cuebit.io.AlarmReceiver
+import com.cuebit.io.DataModels.AlarmDataModel
 import com.cuebit.io.DataModels.TaskDataModel
 import com.cuebit.io.databinding.FragmentAddTaskBinding
 import kotlinx.coroutines.launch
@@ -32,6 +33,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
+
 class AddTaskFragment : Fragment() {
     private var _binding: FragmentAddTaskBinding? = null
     private lateinit var tasksDAO: TasksDAO
@@ -127,18 +129,31 @@ class AddTaskFragment : Fragment() {
 
         // Parse the date and time from the EditText
         val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+
         val dateTime = dateTimeFormat.parse(TaskDateTime) ?: return
         calendar = Calendar.getInstance().apply {
             time = dateTime
         }
 
+        val dateString = dateFormat.format(dateTime)
+        val timeString = timeFormat.format(dateTime)
+        val alarmID = generateId()
+
         val intent = Intent(activity, AlarmReceiver::class.java).apply {
             putExtra("TASK_TITLE", TaskTitle)
+            putExtra("ID", TaskId)
         }
-        pendingIntent = PendingIntent.getBroadcast(activity, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        pendingIntent = PendingIntent.getBroadcast(activity, TaskId.toInt(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
-        Toast.makeText(activity, "Alarm set successfully", Toast.LENGTH_LONG).show()
+
+        val alarmDataModel = AlarmDataModel(alarmID, TaskId, dateString, timeString)
+        lifecycleScope.launch {
+            tasksDAO.createAlarm(alarmDataModel)
+            Toast.makeText(activity, "Alarm set successfully", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun requestExactAlarmPermission() {
@@ -153,7 +168,7 @@ class AddTaskFragment : Fragment() {
 
 
     private fun setData() {
-        TaskId = generateId()
+        TaskId = generateTaskId()
 
         TaskTitle = binding.title.text.toString()
         TaskDescription = binding.Description.text.toString()
@@ -167,6 +182,11 @@ class AddTaskFragment : Fragment() {
 
     private fun generateId(): String {
         return UUID.randomUUID().toString()
+    }
+
+    private fun generateTaskId(): String {
+        val uuid = UUID.randomUUID()
+        return uuid.hashCode().toString()
     }
 
     private fun showDateTimePicker(editText: EditText) {
