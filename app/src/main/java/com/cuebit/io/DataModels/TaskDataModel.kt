@@ -1,7 +1,7 @@
 package com.cuebit.io.DataModels
 
 data class TaskDataModel(
-    var id: String?= null,
+    var id: String ?= null,
     var title: String?= null,
     var description: String?= null,
     var category: String?= null,

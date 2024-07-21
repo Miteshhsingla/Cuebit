@@ -7,6 +7,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.cuebit.io.DataModels.AlarmDataModel
 import com.cuebit.io.DataModels.Category
 import com.cuebit.io.DataModels.HabitDataModel
 import com.cuebit.io.DataModels.TaskDataModel
@@ -342,6 +343,25 @@ class TasksDAO(context: Context?) {
                 put(MyDBHelper.COLUMN_HABIT_STATUS, "1")
             }
             database.update(MyDBHelper.TABLE_HABITS, contentValues, "${MyDBHelper.COLUMN_HABIT_ID} = ?", arrayOf(id))
+        }
+    }
+
+    suspend fun createAlarm(alarm: AlarmDataModel) {
+        withContext(Dispatchers.IO) {
+            contentValues.clear()
+            contentValues.apply {
+                put(MyDBHelper.COLUMN_ALARM_ID, alarm.alarmId)
+                put(MyDBHelper.COLUMN_TASK_HABIT_ID, alarm.task_habit_id)
+                put(MyDBHelper.COLUMN_ALARM_DATE, alarm.date)
+                put(MyDBHelper.COLUMN_ALARM_TIME, alarm.time)
+            }
+            database.insert(MyDBHelper.TABLE_ALARMS, null, contentValues)
+        }
+    }
+
+    suspend fun deleteAlarm(id: String) {
+        withContext(Dispatchers.IO) {
+            database.delete(MyDBHelper.TABLE_ALARMS, "${MyDBHelper.COLUMN_TASK_HABIT_ID} = ?", arrayOf(id))
         }
     }
 
