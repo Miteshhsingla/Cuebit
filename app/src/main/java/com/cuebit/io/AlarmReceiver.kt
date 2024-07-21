@@ -37,7 +37,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val pendingIntent = PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(context, "TimeIt")
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(taskTitle)
             .setContentText("It's time for your task: $taskTitle")
             .setAutoCancel(true)
