@@ -65,7 +65,6 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     private lateinit var categoryAdapter : CategoryAdapter
     private lateinit var tasks_habits_recycler: RecyclerView
     private lateinit var categoryList : MutableList<Category>
-    private lateinit var spinner: Spinner
     private var userName: String = ""
     private var userImage: Int = 0
     private lateinit var tabMode: TabLayout
@@ -130,28 +129,6 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         // Initialize Spinner
         tabMode = binding!!.tabModeFAB
         onTabSelection(tabMode)
-//        spinner = binding?.taskType ?: Spinner(requireContext())
-//        val adapter = ArrayAdapter.createFromResource(
-//            requireContext(),
-//            R.array.task_types, android.R.layout.simple_spinner_item
-//        )
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        spinner.adapter = adapter
-//        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            @RequiresApi(Build.VERSION_CODES.O)
-//            override fun onItemSelected(
-//                parent: AdapterView<*>?,
-//                view: View?,
-//                position: Int,
-//                id: Long
-//            ) {
-//                selectedDate?.let { loadTasksFromDatabase(it) }
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                // Do nothing
-//            }
-//        }
 
         // Set adapter for showing tasks and habits in RecyclerView
         tasks_habits_recycler = binding?.recylerViewTasks ?: RecyclerView(requireContext())
@@ -195,6 +172,8 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         binding?.AddCategory?.setOnClickListener {
             utils.showAddCategoryDialog(requireContext(), categoryAdapter)
         }
+
+        selectedDate?.let { loadTasksFromDatabase(it) }
     }
 
     private fun onTabSelection(tabMode: TabLayout) {
@@ -250,7 +229,6 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
     private fun setupSwipeToDelete() {
 
-        val selectedType = binding!!.tabModeFAB.toString()
         val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -262,20 +240,41 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
-                val taskId = tasksAdapter?.getItem(position)?.id ?: return
-                val habitId = habitsAdapter?.getItem(position)?.id ?: return
 
                 when (direction) {
                     ItemTouchHelper.RIGHT -> {
                         // Mark task and habit as done
                         when (getSelectedTabType()) {
-                            TASKS_TAB -> markAsDone(position, taskId, "Tasks")
-                            HABITS_TAB -> markAsDone(position, habitId, "Habits")
+                            TASKS_TAB -> {
+                                if (position >= 0 && position < (tasksAdapter?.itemCount ?: 0)) {
+                                    val taskId = tasksAdapter?.getItem(position)?.id ?: return
+                                    markAsDone(position, taskId, "Tasks")
+                                }
+                            }
+                            HABITS_TAB -> {
+                                if (position >= 0 && position < (habitsAdapter?.itemCount ?: 0)) {
+                                    val habitId = habitsAdapter?.getItem(position)?.id ?: return
+                                    markAsDone(position, habitId, "Habits")
+                                }
+                            }
                         }
                     }
                     ItemTouchHelper.LEFT -> {
                         // Show delete confirmation dialog
-                        showDeleteConfirmationDialog(position, taskId)
+                        when (getSelectedTabType()) {
+                            TASKS_TAB -> {
+                                if (position >= 0 && position < (tasksAdapter?.itemCount ?: 0)) {
+                                    val taskId = tasksAdapter?.getItem(position)?.id ?: return
+                                    showDeleteConfirmationDialog(position, taskId, "Tasks")
+                                }
+                            }
+                            HABITS_TAB -> {
+                                if (position >= 0 && position < (habitsAdapter?.itemCount ?: 0)) {
+                                    val habitId = habitsAdapter?.getItem(position)?.id ?: return
+                                    showDeleteConfirmationDialog(position, habitId, "Habits")
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -358,30 +357,55 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         }
     }
 
-    private fun showDeleteConfirmationDialog(position: Int,taskId:String) {
+    private fun showDeleteConfirmationDialog(position: Int, id:String, type: String) {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setMessage("Are you sure you want to delete this task?")
-            .setPositiveButton("Yes") { dialog, _ ->
-                tasksAdapter?.removeItem(position)
-                CoroutineScope(Main).launch {
-                tasksDAO?.deleteTask(taskId)
-                    Toast.makeText(activity,"Task Deleted Successfully",Toast.LENGTH_LONG).show()
+        if(type == "Tasks"){
+            builder.setMessage("Are you sure you want to delete this task?")
+                .setPositiveButton("Yes") { dialog, _ ->
+                    tasksAdapter?.removeItem(position)
+                    CoroutineScope(Main).launch {
+                        tasksDAO?.deleteTask(id)
+                        Toast.makeText(activity, "Task Deleted Successfully", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                    dialog.dismiss()
+                    if (tasksList!!.isEmpty()) {
+                        binding!!.emptyState.isVisible = true
+                        binding!!.recylerViewTasks.isVisible = false
+                    } else {
+                        binding!!.emptyState.isVisible = false
+                        binding!!.recylerViewTasks.isVisible = true
+                    }
                 }
-                dialog.dismiss()
-                if(tasksList!!.isEmpty()){
-                    binding!!.emptyState.isVisible = true
-                    binding!!.recylerViewTasks.isVisible = false
+                .setNegativeButton("No") { dialog, _ ->
+                    tasksAdapter?.notifyItemChanged(position)
+                    dialog.dismiss()
                 }
-                else{
-                    binding!!.emptyState.isVisible = false
-                    binding!!.recylerViewTasks.isVisible = true
+            builder.create().show()
+        } else if(type == "Habits") {
+            builder.setMessage("Are you sure you want to delete this habit?")
+                .setPositiveButton("Yes") { dialog, _ ->
+                    habitsAdapter?.removeItem(position)
+                    CoroutineScope(Main).launch {
+                        tasksDAO?.deleteHabit(id)
+                        Toast.makeText(activity, "Habit Deleted Successfully", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                    dialog.dismiss()
+                    if (habitsList!!.isEmpty()) {
+                        binding!!.emptyState.isVisible = true
+                        binding!!.recylerViewTasks.isVisible = false
+                    } else {
+                        binding!!.emptyState.isVisible = false
+                        binding!!.recylerViewTasks.isVisible = true
+                    }
                 }
-            }
-            .setNegativeButton("No") { dialog, _ ->
-                tasksAdapter?.notifyItemChanged(position)
-                dialog.dismiss()
-            }
-        builder.create().show()
+                .setNegativeButton("No") { dialog, _ ->
+                    habitsAdapter?.notifyItemChanged(position)
+                    dialog.dismiss()
+                }
+            builder.create().show()
+        }
     }
 
 
@@ -536,7 +560,6 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        tasksDAO?.close()
         binding = null
     }
 

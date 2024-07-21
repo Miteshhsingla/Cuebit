@@ -181,6 +181,28 @@ class TasksDAO(context: Context?) {
         }
     }
 
+    suspend fun editTask(id: String, task: TaskDataModel) {
+        withContext(Dispatchers.IO) {
+            val values = ContentValues().apply {
+                put(MyDBHelper.COLUMN_TITLE, task.title)
+                put(MyDBHelper.COLUMN_DESCRIPTION, task.description)
+                put(MyDBHelper.COLUMN_CATEGORY, task.category)
+                put(MyDBHelper.COLUMN_DATETIME, task.dateAndTime)
+                put(MyDBHelper.COLUMN_FREQUENCY, task.frequency)
+            }
+
+            val selection = "${MyDBHelper.COLUMN_ID} = ?"
+            val selectionArgs = arrayOf(id)
+
+            database.update(
+                MyDBHelper.TABLE_TASKS,
+                values,
+                selection,
+                selectionArgs
+            )
+        }
+    }
+
     suspend fun markTaskAsDone(id: String) {
         withContext(Dispatchers.IO) {
             val contentValues = ContentValues().apply {
@@ -305,6 +327,12 @@ class TasksDAO(context: Context?) {
                 }
             }
             habitsList
+        }
+    }
+
+    suspend fun deleteHabit(id: String) {
+        withContext(Dispatchers.IO) {
+            database.delete(MyDBHelper.TABLE_HABITS, "${MyDBHelper.COLUMN_HABIT_ID} = ?", arrayOf(id))
         }
     }
 
