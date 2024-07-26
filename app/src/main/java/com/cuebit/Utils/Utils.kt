@@ -115,7 +115,7 @@ public class Utils {
     @SuppressLint("MissingInflatedId")
     public fun showAddCategoryDialog(context: Context, categoryAdapter: CategoryAdapter) {
         // Create a new instance of the dialog
-        val tasksDAO = TasksDAO(context)
+        val tasksDAO = TasksDAO.getInstance(context)
         var categoryList: MutableList<Category>
         val dialogView = LayoutInflater.from(context).inflate(R.layout.add_category_dialog, null)
         val dialogBuilder = AlertDialog.Builder(context)

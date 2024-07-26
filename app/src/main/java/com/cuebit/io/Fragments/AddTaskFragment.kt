@@ -62,7 +62,7 @@ class AddTaskFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tasksDAO = TasksDAO(activity)
+        tasksDAO = TasksDAO.getInstance(activity)
 
         // Initialize Category Spinner Adapter
         categoryAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, mutableListOf())
