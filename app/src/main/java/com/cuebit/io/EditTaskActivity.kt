@@ -25,7 +25,7 @@ class EditTaskActivity : AppCompatActivity() {
         binding = ActivityEditTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        tasksDAO = TasksDAO(applicationContext)
+        tasksDAO = TasksDAO.getInstance(applicationContext)
 
         val id = intent.getStringExtra("TASK_ID")
         val title = intent.getStringExtra("TASK_TITLE")

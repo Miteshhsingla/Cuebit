@@ -58,7 +58,7 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     fun cancelAlarm(context: Context, Id: String) {
-        tasksDAO = TasksDAO(context)
+        tasksDAO = TasksDAO.getInstance(context)
         val alarmIntent = Intent(context, AlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
