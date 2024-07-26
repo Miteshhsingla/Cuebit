@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -15,10 +16,20 @@ import com.cuebit.io.Fragments.HomeFragment
 import com.cuebit.io.Fragments.ProfileFragment
 import com.cuebit.io.R
 import com.cuebit.io.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.android.play.core.tasks.Task
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var appUpdateManager: AppUpdateManager
+    private val REQUEST_CODE_UPDATE = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +58,9 @@ class MainActivity : AppCompatActivity() {
             val bottomSheetFragment = BottomSheetFragment()
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
         }
+
+        appUpdateManager = AppUpdateManagerFactory.create(this)
+        checkForAppUpdate()
     }
 
     private fun createNotificationChannel() {
@@ -78,6 +92,55 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         finishAffinity()
+    }
+
+    // Function checkForAppUpdate is to check for new version of application on playstore
+    private fun checkForAppUpdate() {
+        val appUpdateInfoTask: Task<AppUpdateInfo> = appUpdateManager.appUpdateInfo
+
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
+            ) {
+                showUpdateSnackbar(appUpdateInfo)
+            }
+        }
+    }
+
+    //Code for showing sanckbar with new android application version information available on playstore
+    private fun showUpdateSnackbar(appUpdateInfo: AppUpdateInfo) {
+        val snackbar = Snackbar.make(
+            findViewById(android.R.id.content),
+            "A new version is available.",
+            Snackbar.LENGTH_INDEFINITE
+        )
+        snackbar.setAction("Update") {
+            appUpdateManager.startUpdateFlowForResult(
+                appUpdateInfo,
+                this,
+                AppUpdateOptions.defaultOptions(AppUpdateType.FLEXIBLE),
+                REQUEST_CODE_UPDATE
+            )
+        }
+        snackbar.setActionTextColor(resources.getColor(R.color.black, null))
+        snackbar.setAction("Cancel") {
+            snackbar.dismiss()
+        }
+        snackbar.show()
+    }
+
+    //onActivityResult will be called after startUpdateFlowForResult() in showUpdateSnackbar
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_UPDATE) {
+            if (resultCode != RESULT_OK) {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "Update failed. Please try again later.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 
 }

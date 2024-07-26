@@ -124,4 +124,5 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.multidex:multidex:2.0.1")
+    implementation("com.google.android.play:core:1.10.3")
 }
