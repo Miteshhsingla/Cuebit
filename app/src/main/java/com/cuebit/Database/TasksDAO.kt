@@ -15,17 +15,31 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class TasksDAO(context: Context?) {
-    private val database: SQLiteDatabase
+    private val databaseWrite: SQLiteDatabase
+    private val databaseRead: SQLiteDatabase
     private val dbHelper: MyDBHelper
     private val contentValues: ContentValues = ContentValues()
 
     init {
         dbHelper = MyDBHelper(context)
-        database = dbHelper.writableDatabase
+        databaseWrite = dbHelper.writableDatabase
+        databaseRead = dbHelper.readableDatabase
     }
 
     fun close() {
         dbHelper.close()
+    }
+
+    //Created a companion object to use TasksDAO as a singleton class
+    companion object {
+        @Volatile
+        private var INSTANCE: TasksDAO? = null
+
+        fun getInstance(context: Context?): TasksDAO {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: TasksDAO(context).also { INSTANCE = it }
+            }
+        }
     }
 
     // Insert a task
@@ -41,7 +55,7 @@ class TasksDAO(context: Context?) {
                 put(MyDBHelper.COLUMN_FREQUENCY, task.frequency)
                 put(MyDBHelper.COLUMN_TASK_STATUS, task.markAsDone)
             }
-            database.insert(MyDBHelper.TABLE_TASKS, null, contentValues)
+            databaseWrite.insert(MyDBHelper.TABLE_TASKS, null, contentValues)
         }
     }
 
@@ -49,7 +63,7 @@ class TasksDAO(context: Context?) {
     @SuppressLint("Range")
     suspend fun getTask(id: String): TaskDataModel? {
         return withContext(Dispatchers.IO) {
-            val cursor = database.query(
+            val cursor = databaseRead.query(
                 MyDBHelper.TABLE_TASKS,
                 null,
                 "${MyDBHelper.COLUMN_ID} = ?",
@@ -92,7 +106,7 @@ class TasksDAO(context: Context?) {
             val selection = "${MyDBHelper.COLUMN_TASK_STATUS} = ?"
             // Assuming '0' indicates the task is not done
             val selectionArgs = arrayOf("0")
-            val cursor = database.query(
+            val cursor = databaseRead.query(
                 MyDBHelper.TABLE_TASKS,
                 columns,
                 selection,
@@ -128,7 +142,7 @@ class TasksDAO(context: Context?) {
             val tasksList = mutableListOf<TaskDataModel>()
             val query =
                 "SELECT * FROM ${MyDBHelper.TABLE_TASKS} WHERE SUBSTR(${MyDBHelper.COLUMN_DATETIME}, 1, 10) = ? AND ${MyDBHelper.COLUMN_TASK_STATUS} = '0'"
-            val cursor = database.rawQuery(query, arrayOf(date))
+            val cursor = databaseRead.rawQuery(query, arrayOf(date))
             cursor.use {
                 while (it.moveToNext()) {
                     tasksList.add(
@@ -153,7 +167,7 @@ class TasksDAO(context: Context?) {
     suspend fun getTasksByCategory(category: String): List<TaskDataModel> {
         return withContext(Dispatchers.IO) {
             val tasksList = mutableListOf<TaskDataModel>()
-            val cursor = database.query(
+            val cursor = databaseRead.query(
                 MyDBHelper.TABLE_TASKS,
                 null,
                 "${MyDBHelper.COLUMN_CATEGORY} = ? AND ${MyDBHelper.COLUMN_TASK_STATUS} = ?",
@@ -195,7 +209,7 @@ class TasksDAO(context: Context?) {
             val selection = "${MyDBHelper.COLUMN_ID} = ?"
             val selectionArgs = arrayOf(id)
 
-            database.update(
+            databaseWrite.update(
                 MyDBHelper.TABLE_TASKS,
                 values,
                 selection,
@@ -209,20 +223,20 @@ class TasksDAO(context: Context?) {
             val contentValues = ContentValues().apply {
                 put(MyDBHelper.COLUMN_TASK_STATUS, "1")
             }
-            database.update(MyDBHelper.TABLE_TASKS, contentValues, "${MyDBHelper.COLUMN_ID} = ?", arrayOf(id))
+            databaseWrite.update(MyDBHelper.TABLE_TASKS, contentValues, "${MyDBHelper.COLUMN_ID} = ?", arrayOf(id))
         }
     }
 
     suspend fun deleteTask(id: String) {
         withContext(Dispatchers.IO) {
-            database.delete(MyDBHelper.TABLE_TASKS, "${MyDBHelper.COLUMN_ID} = ?", arrayOf(id))
+            databaseWrite.delete(MyDBHelper.TABLE_TASKS, "${MyDBHelper.COLUMN_ID} = ?", arrayOf(id))
         }
     }
 
     suspend fun addCategory(categoryName: String, categoryId: String) {
         withContext(Dispatchers.IO) {
 
-            val db = database
+            val db = databaseWrite
             val values = ContentValues().apply {
                 put(MyDBHelper.COLUMN_CATEGORY_ID, categoryId)
                 put(MyDBHelper.COLUMN_CATEGORY_NAME, categoryName)
@@ -235,7 +249,7 @@ class TasksDAO(context: Context?) {
         return withContext(Dispatchers.IO) {
 
             val categories = mutableListOf<Category>()
-            val db = database
+            val db = databaseRead
             val cursor: Cursor = db.rawQuery("SELECT * FROM ${MyDBHelper.TABLE_CATEGORIES}", null)
             cursor.use {
                 if (it.moveToFirst()) {
@@ -254,7 +268,7 @@ class TasksDAO(context: Context?) {
 
     suspend fun isCategoryExist(categoryName: String): Boolean {
         return withContext(Dispatchers.IO) {
-            val db = dbHelper.readableDatabase
+            val db = databaseRead
             val cursor = db.query(
                 MyDBHelper.TABLE_CATEGORIES,
                 arrayOf(MyDBHelper.COLUMN_CATEGORY_NAME),
@@ -273,7 +287,7 @@ class TasksDAO(context: Context?) {
     suspend fun deleteCategory(categoryId: String) {
         withContext(Dispatchers.IO) {
 
-            val db = database
+            val db = databaseWrite
              db.delete(
                 MyDBHelper.TABLE_CATEGORIES,
                 "${MyDBHelper.COLUMN_CATEGORY_ID} = ?",
@@ -296,7 +310,7 @@ class TasksDAO(context: Context?) {
                 put(MyDBHelper.COLUMN_HABIT_IMAGE, habit.image)
                 put(MyDBHelper.COLUMN_HABIT_STATUS, habit.isCompleted)
             }
-            database.insert(MyDBHelper.TABLE_HABITS, null, contentValues)
+            databaseWrite.insert(MyDBHelper.TABLE_HABITS, null, contentValues)
         }
     }
 
@@ -308,7 +322,7 @@ class TasksDAO(context: Context?) {
                 "SELECT * FROM ${MyDBHelper.TABLE_HABITS} WHERE ${MyDBHelper.COLUMN_HABIT_DATE} = ? AND ${MyDBHelper.COLUMN_HABIT_STATUS} = '0'"
 
             val habitsList = mutableListOf<HabitDataModel>()
-            val cursor = database.rawQuery(query, arrayOf(date))
+            val cursor = databaseRead.rawQuery(query, arrayOf(date))
             cursor.use {
                 while (it.moveToNext()) {
                     habitsList.add(
@@ -333,7 +347,7 @@ class TasksDAO(context: Context?) {
 
     suspend fun deleteHabit(id: String) {
         withContext(Dispatchers.IO) {
-            database.delete(MyDBHelper.TABLE_HABITS, "${MyDBHelper.COLUMN_HABIT_ID} = ?", arrayOf(id))
+            databaseWrite.delete(MyDBHelper.TABLE_HABITS, "${MyDBHelper.COLUMN_HABIT_ID} = ?", arrayOf(id))
         }
     }
 
@@ -342,7 +356,7 @@ class TasksDAO(context: Context?) {
             val contentValues = ContentValues().apply {
                 put(MyDBHelper.COLUMN_HABIT_STATUS, "1")
             }
-            database.update(MyDBHelper.TABLE_HABITS, contentValues, "${MyDBHelper.COLUMN_HABIT_ID} = ?", arrayOf(id))
+            databaseWrite.update(MyDBHelper.TABLE_HABITS, contentValues, "${MyDBHelper.COLUMN_HABIT_ID} = ?", arrayOf(id))
         }
     }
 
@@ -355,13 +369,13 @@ class TasksDAO(context: Context?) {
                 put(MyDBHelper.COLUMN_ALARM_DATE, alarm.date)
                 put(MyDBHelper.COLUMN_ALARM_TIME, alarm.time)
             }
-            database.insert(MyDBHelper.TABLE_ALARMS, null, contentValues)
+            databaseWrite.insert(MyDBHelper.TABLE_ALARMS, null, contentValues)
         }
     }
 
     suspend fun deleteAlarm(id: String) {
         withContext(Dispatchers.IO) {
-            database.delete(MyDBHelper.TABLE_ALARMS, "${MyDBHelper.COLUMN_TASK_HABIT_ID} = ?", arrayOf(id))
+            databaseWrite.delete(MyDBHelper.TABLE_ALARMS, "${MyDBHelper.COLUMN_TASK_HABIT_ID} = ?", arrayOf(id))
         }
     }
 

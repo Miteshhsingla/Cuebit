@@ -113,7 +113,7 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         // Initialize taskList and taskDao
         tasksList = mutableListOf()
         habitsList = mutableListOf()  // Initialize habitsList here
-        tasksDAO = TasksDAO(requireContext())
+        tasksDAO = TasksDAO.getInstance(requireContext())
         alarmReceiver = AlarmReceiver()
 
         // Calendar arrows for scrolling weeks
