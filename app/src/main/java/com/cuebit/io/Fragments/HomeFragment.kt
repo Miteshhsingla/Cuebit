@@ -496,6 +496,8 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun loadTasksFromDatabase(selectedDate: Day) {
+        if (!isAdded || !isVisible) return
+
         val calendar = Calendar.getInstance()
         calendar[selectedDate.year, getMonthIndex(selectedDate.dayMonth)] = selectedDate.dayNumber
         val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
@@ -510,12 +512,14 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
                     else -> {}
                 }
             }
-            setupRecyclerViewAdapter()
-            when (getSelectedTabType()) {
-                HABITS_TAB -> habitsAdapter?.notifyDataSetChanged()
-                TASKS_TAB -> tasksAdapter?.notifyDataSetChanged()
+            if (isAdded && isVisible) {  // Check if the fragment is still added and visible before updating the UI
+                setupRecyclerViewAdapter()
+                when (getSelectedTabType()) {
+                    HABITS_TAB -> habitsAdapter?.notifyDataSetChanged()
+                    TASKS_TAB -> tasksAdapter?.notifyDataSetChanged()
+                }
+                updateRecyclerViewVisibility(getSelectedTabType())
             }
-            updateRecyclerViewVisibility(getSelectedTabType())
         }
     }
 
@@ -550,15 +554,16 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         return -1 // In case the month name is not found
     }
 
-    override fun onResume() {
-        super.onResume()
-        val filter = IntentFilter("com.cuebit.io.ACTION_TASK_INSERTED")
-        requireContext().registerReceiver(taskInsertedReceiver, filter)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // Register receiver when fragment is attached
+        context.registerReceiver(taskInsertedReceiver, IntentFilter("com.cuebit.io.TASK_INSERTED"))
     }
 
-    override fun onPause() {
-        super.onPause()
-        requireContext().unregisterReceiver(taskInsertedReceiver)
+    override fun onDetach() {
+        super.onDetach()
+        // Unregister receiver when fragment is detached
+        context?.unregisterReceiver(taskInsertedReceiver)
     }
 
     override fun onDestroyView() {
@@ -567,6 +572,8 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
     }
 
     private fun setCategoryAdapter(categoryList : MutableList<Category>){
+        if (!isAdded) return
+
         categoryAdapter = CategoryAdapter(categoryList, tasksDAO!!, requireContext(),this)
         binding!!.categoryRecyclerView.layoutManager = LinearLayoutManager(activity,LinearLayoutManager.HORIZONTAL,false)
         binding!!.categoryRecyclerView.adapter = categoryAdapter

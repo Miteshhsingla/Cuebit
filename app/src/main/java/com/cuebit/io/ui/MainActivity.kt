@@ -6,9 +6,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.cuebit.io.Fragments.BottomSheetFragment
@@ -35,6 +39,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Set the theme based on system setting
+        setAppTheme()
 
         createNotificationChannel()
         val homeFragment = HomeFragment()
@@ -129,6 +136,12 @@ class MainActivity : AppCompatActivity() {
         snackbar.show()
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // Update the theme when the configuration changes
+        setAppTheme()
+    }
+
     //onActivityResult will be called after startUpdateFlowForResult() in showUpdateSnackbar
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -141,6 +154,50 @@ class MainActivity : AppCompatActivity() {
                 ).show()
             }
         }
+    }
+
+    // Function to set the theme based on the system setting
+    private fun setAppTheme() {
+        // Restart the activity to apply the new theme
+        updateUIWithNewTheme()
+        updateThemeColors()
+        refreshFragment()
+    }
+
+    //Function to set fragment background color
+    private fun updateThemeColors() {
+        val backgroundColor = ContextCompat.getColor(applicationContext, R.color.bg_white)
+        binding?.root?.setBackgroundColor(backgroundColor)
+    }
+
+    //Function to update app theme according to mobile theme
+    private fun updateUIWithNewTheme() {
+        val rootView = findViewById<ViewGroup>(android.R.id.content)
+        rootView.post {
+            val theme = AppCompatDelegate.getDefaultNightMode()
+            rootView.setBackgroundColor(ContextCompat.getColor(this, getThemeColorRes(theme)))
+        }
+    }
+
+    //Function to relaunch fragment after changing the theme
+    private fun refreshFragment() {
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView)
+        fragment?.let {
+            val newFragment = it::class.java.newInstance()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView, newFragment)
+                .commitAllowingStateLoss()
+        }
+    }
+
+    private fun getThemeColorRes(theme: Int): Int {
+        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        val newNightMode = when (currentNightMode) {
+            AppCompatDelegate.MODE_NIGHT_YES -> R.color.dark_background
+            AppCompatDelegate.MODE_NIGHT_NO -> R.color.light_background
+            else -> R.color.default_background
+        }
+        return newNightMode
     }
 
 }
