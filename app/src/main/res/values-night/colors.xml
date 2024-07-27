@@ -8,13 +8,13 @@
     <color name="delete">#F08484</color>
 
 
-//avatars bg
-        <color name="color1">#ECC7CF</color>
-        <color name="color2">#A1E0C3</color>
-        <color name="color3">#F3D9B1</color>
-        <color name="color4">#B1D6F3</color>
-        <color name="color5">#D6B1F3</color>
-        <color name="color6">#F3B1C1</color>
+    //avatars bg
+    <color name="color1">#ECC7CF</color>
+    <color name="color2">#A1E0C3</color>
+    <color name="color3">#F3D9B1</color>
+    <color name="color4">#B1D6F3</color>
+    <color name="color5">#D6B1F3</color>
+    <color name="color6">#F3B1C1</color>
     <color name="colorRecyclerViewDelete">#000000</color>
     <color name="selected_day_color">#cdcdcd</color>
     <color name="unselected_day_color">#a5a5a5</color>
@@ -22,8 +22,4 @@
     <color name="dark_background">#000000</color>
     <color name="light_background">#FFFFFF</color>
     <color name="default_background">#F0F0F0</color>
-
-
 </resources>
-
-
