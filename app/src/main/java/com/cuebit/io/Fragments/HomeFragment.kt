@@ -554,16 +554,28 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         return -1 // In case the month name is not found
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onAttach(context: Context) {
         super.onAttach(context)
         // Register receiver when fragment is attached
-        context.registerReceiver(taskInsertedReceiver, IntentFilter("com.cuebit.io.TASK_INSERTED"))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireActivity().registerReceiver(
+                taskInsertedReceiver,
+                IntentFilter("com.cuebit.io.TASK_INSERTED"),
+                Context.RECEIVER_NOT_EXPORTED
+            )
+        } else {
+            requireActivity().registerReceiver(
+                taskInsertedReceiver,
+                IntentFilter("com.cuebit.io.TASK_INSERTED")
+            )
+        }
     }
 
     override fun onDetach() {
         super.onDetach()
         // Unregister receiver when fragment is detached
-        context?.unregisterReceiver(taskInsertedReceiver)
+        requireActivity()?.unregisterReceiver(taskInsertedReceiver)
     }
 
     override fun onDestroyView() {

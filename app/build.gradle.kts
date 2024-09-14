@@ -11,8 +11,8 @@ android {
         applicationId = "com.cuebit.io"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 4
+        versionName = "1.1.1"
         multiDexEnabled = true
 
         ndk {
@@ -124,5 +124,6 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.multidex:multidex:2.0.1")
-    implementation("com.google.android.play:core:1.10.3")
+//    implementation ("com.google.android.play:review:2.0.1")
+//    implementation ("com.google.android.play:app-update:2.1.0")
 }

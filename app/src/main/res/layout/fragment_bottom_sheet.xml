@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/bg_white"
+    android:background="@color/secondary"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <View
@@ -38,10 +38,10 @@
             android:layout_height="wrap_content"
             app:tabGravity="fill"
             app:tabRippleColor="@null"
-            android:background="@drawable/tab_color_selector"
-            app:tabBackground="@drawable/tab_color_selector"
+            android:background="@drawable/tab_color_selector_bottom_sheet"
+            app:tabBackground="@drawable/tab_color_selector_bottom_sheet"
             app:tabSelectedTextColor="@color/white"
-            app:tabTextColor="@color/black"
+            app:tabTextColor="@color/textsecondary"
             app:tabIndicator="@null"
             app:tabMode="fixed">
 

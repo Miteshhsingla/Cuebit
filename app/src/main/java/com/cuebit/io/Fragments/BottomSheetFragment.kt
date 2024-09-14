@@ -103,10 +103,11 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
+    @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
         val filter = IntentFilter("com.cuebit.io.ACTION_DISMISS_BOTTOM_SHEET")
-        requireContext().registerReceiver(dismissReceiver, filter)
+        requireContext().registerReceiver(dismissReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onDestroyView() {

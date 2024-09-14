@@ -12,7 +12,7 @@
         android:text="General"
         android:background="@drawable/category_bg"
         android:textSize="14sp"
-        android:textColor="#252525"
+        android:textColor="@color/textsecondary"
         android:padding="8dp"
         />
 

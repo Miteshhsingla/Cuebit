@@ -6,7 +6,18 @@
     <color name="light_purple">#6044B4</color>
     <color name="dark_purple">#3C2090</color>
     <color name="delete">#F08484</color>
+    <color name="secondary_color">#242521</color>
+    <color name="primarytextcolor">#ffffff</color>
+    <color name="secondarytextcolor">#a4a4a4</color>
 
+
+    //colors dark mode
+    <color name="primary">#212327</color>
+    <color name="secondary">#323438</color>
+    <color name="accent1">#3E2292</color>
+    <color name="accent2">#5E42B1</color>
+    <color name="textprimary">#FFFFFF</color>
+    <color name="textsecondary">#CCCDD7</color>
 
     //avatars bg
     <color name="color1">#ECC7CF</color>

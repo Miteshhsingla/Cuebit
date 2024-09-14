@@ -21,18 +21,10 @@ import com.cuebit.io.Fragments.ProfileFragment
 import com.cuebit.io.R
 import com.cuebit.io.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.play.core.appupdate.AppUpdateInfo
-import com.google.android.play.core.appupdate.AppUpdateManager
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory
-import com.google.android.play.core.appupdate.AppUpdateOptions
-import com.google.android.play.core.install.model.AppUpdateType
-import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.android.play.core.tasks.Task
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var appUpdateManager: AppUpdateManager
     private val REQUEST_CODE_UPDATE = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,8 +58,6 @@ class MainActivity : AppCompatActivity() {
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
         }
 
-        appUpdateManager = AppUpdateManagerFactory.create(this)
-        checkForAppUpdate()
     }
 
     private fun createNotificationChannel() {
@@ -102,7 +92,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Function checkForAppUpdate is to check for new version of application on playstore
-    private fun checkForAppUpdate() {
+    /*private fun checkForAppUpdate() {
         val appUpdateInfoTask: Task<AppUpdateInfo> = appUpdateManager.appUpdateInfo
 
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
@@ -112,10 +102,10 @@ class MainActivity : AppCompatActivity() {
                 showUpdateSnackbar(appUpdateInfo)
             }
         }
-    }
+    }*/
 
     //Code for showing sanckbar with new android application version information available on playstore
-    private fun showUpdateSnackbar(appUpdateInfo: AppUpdateInfo) {
+    /*private fun showUpdateSnackbar(appUpdateInfo: AppUpdateInfo) {
         val snackbar = Snackbar.make(
             findViewById(android.R.id.content),
             "A new version is available.",
@@ -134,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             snackbar.dismiss()
         }
         snackbar.show()
-    }
+    }*/
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -166,7 +156,7 @@ class MainActivity : AppCompatActivity() {
 
     //Function to set fragment background color
     private fun updateThemeColors() {
-        val backgroundColor = ContextCompat.getColor(applicationContext, R.color.bg_white)
+        val backgroundColor = ContextCompat.getColor(applicationContext, R.color.primary)
         binding?.root?.setBackgroundColor(backgroundColor)
     }
 
@@ -193,9 +183,9 @@ class MainActivity : AppCompatActivity() {
     private fun getThemeColorRes(theme: Int): Int {
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         val newNightMode = when (currentNightMode) {
-            AppCompatDelegate.MODE_NIGHT_YES -> R.color.dark_background
-            AppCompatDelegate.MODE_NIGHT_NO -> R.color.light_background
-            else -> R.color.default_background
+            AppCompatDelegate.MODE_NIGHT_YES -> R.color.primary
+            AppCompatDelegate.MODE_NIGHT_NO -> R.color.primary
+            else -> R.color.primary
         }
         return newNightMode
     }
