@@ -100,7 +100,8 @@ class AddTaskFragment : Fragment() {
 
                         // Dismiss bottom sheet
                         val intent = Intent("com.cuebit.io.ACTION_DISMISS_BOTTOM_SHEET")
-                        requireContext().sendBroadcast(intent)
+                        context?.sendBroadcast(intent)
+
                     } catch (e: Exception) {
                         Log.e("AddTaskFragment", "Error inserting task", e)
                         Toast.makeText(activity, "Failed to create task", Toast.LENGTH_LONG).show()

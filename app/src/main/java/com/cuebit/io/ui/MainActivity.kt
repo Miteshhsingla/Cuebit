@@ -132,19 +132,19 @@ class MainActivity : AppCompatActivity() {
         setAppTheme()
     }
 
-    //onActivityResult will be called after startUpdateFlowForResult() in showUpdateSnackbar
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_UPDATE) {
-            if (resultCode != RESULT_OK) {
-                Snackbar.make(
-                    findViewById(android.R.id.content),
-                    "Update failed. Please try again later.",
-                    Snackbar.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
+//    //onActivityResult will be called after startUpdateFlowForResult() in showUpdateSnackbar
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if (requestCode == REQUEST_CODE_UPDATE) {
+//            if (resultCode != RESULT_OK) {
+//                Snackbar.make(
+//                    findViewById(android.R.id.content),
+//                    "Update failed. Please try again later.",
+//                    Snackbar.LENGTH_LONG
+//                ).show()
+//            }
+//        }
+//    }
 
     // Function to set the theme based on the system setting
     private fun setAppTheme() {

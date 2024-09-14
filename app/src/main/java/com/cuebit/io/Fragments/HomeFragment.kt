@@ -128,14 +128,17 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         dateAdapter?.updateSelected(todayPosition)
         binding?.recyclerView?.scrollToPosition(todayPosition)
 
-        // Initialize Spinner
-        tabMode = binding!!.tabModeFAB
-        onTabSelection(tabMode)
+//        // Initialize Spinner
+//        tabMode = binding!!.tabModeFAB
+//        onTabSelection(tabMode)
 
         // Set adapter for showing tasks and habits in RecyclerView
         tasks_habits_recycler = binding?.recylerViewTasks ?: RecyclerView(requireContext())
 
-        setupRecyclerViewAdapter()
+        tasksAdapter = TasksAdapter(tasksList ?: mutableListOf(), requireContext())
+        binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
+        binding?.recylerViewTasks?.adapter = tasksAdapter
+
         setupSwipeToDelete()
 
         // On click for clicking on date in the calendar
@@ -178,48 +181,48 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         selectedDate?.let { loadTasksFromDatabase(it) }
     }
 
-    private fun onTabSelection(tabMode: TabLayout) {
-        try {
-            tabMode.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                @RequiresApi(Build.VERSION_CODES.O)
-                override fun onTabSelected(tab: TabLayout.Tab?) {
-                    when (tab?.position) {
-                        0 -> { // Tasks Tab
-                            selectedDate?.let { loadTasksFromDatabase(it) }
-                        }
-                        1 -> { // Habits Tab
-                            selectedDate?.let { loadTasksFromDatabase(it) }
-                        }
-                    }
-                }
+//    private fun onTabSelection(tabMode: TabLayout) {
+//        try {
+//            tabMode.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+//                @RequiresApi(Build.VERSION_CODES.O)
+//                override fun onTabSelected(tab: TabLayout.Tab?) {
+//                    when (tab?.position) {
+//                        0 -> { // Tasks Tab
+//                            selectedDate?.let { loadTasksFromDatabase(it) }
+//                        }
+//                        1 -> { // Habits Tab
+//                            selectedDate?.let { loadTasksFromDatabase(it) }
+//                        }
+//                    }
+//                }
+//
+//                override fun onTabUnselected(tab: TabLayout.Tab?) {
+//
+//                }
+//
+//                override fun onTabReselected(tab: TabLayout.Tab?) {
+//
+//                }
+//            })
+//        } catch (e: Exception) {
+//            Log.e("HomeFragment", "Error: ${e.message}", e)
+//        }
+//    }
 
-                override fun onTabUnselected(tab: TabLayout.Tab?) {
-
-                }
-
-                override fun onTabReselected(tab: TabLayout.Tab?) {
-
-                }
-            })
-        } catch (e: Exception) {
-            Log.e("HomeFragment", "Error: ${e.message}", e)
-        }
-    }
-
-    private fun setupRecyclerViewAdapter() {
-        when (getSelectedTabType()) {
-            TASKS_TAB -> {
-                tasksAdapter = TasksAdapter(tasksList ?: mutableListOf(), requireContext())
-                binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
-                binding?.recylerViewTasks?.adapter = tasksAdapter
-            }
-            HABITS_TAB -> {
-                habitsAdapter = HabitsAdapter(habitsList ?: mutableListOf(), requireContext())
-                binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
-                binding?.recylerViewTasks?.adapter = habitsAdapter
-            }
-        }
-    }
+//    private fun setupRecyclerViewAdapter() {
+//        when (getSelectedTabType()) {
+//            TASKS_TAB -> {
+//                tasksAdapter = TasksAdapter(tasksList ?: mutableListOf(), requireContext())
+//                binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
+//                binding?.recylerViewTasks?.adapter = tasksAdapter
+//            }
+//            HABITS_TAB -> {
+//                habitsAdapter = HabitsAdapter(habitsList ?: mutableListOf(), requireContext())
+//                binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
+//                binding?.recylerViewTasks?.adapter = habitsAdapter
+//            }
+//        }
+//    }
 
     private fun generateId(): String {
         return UUID.randomUUID().toString()
@@ -245,38 +248,47 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
 
                 when (direction) {
                     ItemTouchHelper.RIGHT -> {
-                        // Mark task and habit as done
-                        when (getSelectedTabType()) {
-                            TASKS_TAB -> {
-                                if (position >= 0 && position < (tasksAdapter?.itemCount ?: 0)) {
-                                    val taskId = tasksAdapter?.getItem(position)?.id ?: return
-                                    markAsDone(position, taskId, "Tasks")
-                                }
-                            }
-                            HABITS_TAB -> {
-                                if (position >= 0 && position < (habitsAdapter?.itemCount ?: 0)) {
-                                    val habitId = habitsAdapter?.getItem(position)?.id ?: return
-                                    markAsDone(position, habitId, "Habits")
-                                }
-                            }
+                        if (position >= 0 && position < (tasksAdapter?.itemCount ?: 0)) {
+                            val taskId = tasksAdapter?.getItem(position)?.id ?: return
+                            markAsDone(position, taskId, "Tasks")
                         }
+                        // Mark task and habit as done
+//                        when (getSelectedTabType()) {
+//                            TASKS_TAB -> {
+//                                if (position >= 0 && position < (tasksAdapter?.itemCount ?: 0)) {
+//                                    val taskId = tasksAdapter?.getItem(position)?.id ?: return
+//                                    markAsDone(position, taskId, "Tasks")
+//                                }
+//                            }
+//                            HABITS_TAB -> {
+//                                if (position >= 0 && position < (habitsAdapter?.itemCount ?: 0)) {
+//                                    val habitId = habitsAdapter?.getItem(position)?.id ?: return
+//                                    markAsDone(position, habitId, "Habits")
+//                                }
+//                            }
+//                        }
                     }
                     ItemTouchHelper.LEFT -> {
-                        // Show delete confirmation dialog
-                        when (getSelectedTabType()) {
-                            TASKS_TAB -> {
-                                if (position >= 0 && position < (tasksAdapter?.itemCount ?: 0)) {
-                                    val taskId = tasksAdapter?.getItem(position)?.id ?: return
-                                    showDeleteConfirmationDialog(position, taskId, "Tasks")
-                                }
-                            }
-                            HABITS_TAB -> {
-                                if (position >= 0 && position < (habitsAdapter?.itemCount ?: 0)) {
-                                    val habitId = habitsAdapter?.getItem(position)?.id ?: return
-                                    showDeleteConfirmationDialog(position, habitId, "Habits")
-                                }
-                            }
+                        if (position >= 0 && position < (tasksAdapter?.itemCount ?: 0)) {
+                            val taskId = tasksAdapter?.getItem(position)?.id ?: return
+                            showDeleteConfirmationDialog(position, taskId, "Tasks")
                         }
+                        // Show delete confirmation dialog
+//                        when (getSelectedTabType()) {
+//                            TASKS_TAB -> {
+//                        if (position >= 0 && position < (tasksAdapter?.itemCount ?: 0)) {
+//                            val taskId = tasksAdapter?.getItem(position)?.id ?: return
+//                            showDeleteConfirmationDialog(position, taskId, "Tasks")
+//                        }
+//
+//                            }
+//                            HABITS_TAB -> {
+//                                if (position >= 0 && position < (habitsAdapter?.itemCount ?: 0)) {
+//                                    val habitId = habitsAdapter?.getItem(position)?.id ?: return
+//                                    showDeleteConfirmationDialog(position, habitId, "Habits")
+//                                }
+//                            }
+//                        }
                     }
                 }
             }
@@ -448,9 +460,9 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
         binding!!.selectedDayText.text = monthYearText
     }
 
-    private fun getSelectedTabType(): Int {
-        return tabMode.selectedTabPosition
-    }
+//    private fun getSelectedTabType(): Int {
+//        return tabMode.selectedTabPosition
+//    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showDatePickerDialog() {
@@ -506,41 +518,46 @@ class HomeFragment : Fragment(), CategoryAdapter.OnTasksFetchedListener {
             withContext(Dispatchers.IO) {
                 tasksList!!.clear()
                 habitsList!!.clear()
-                when (getSelectedTabType()) {
-                    HABITS_TAB -> habitsList!!.addAll(tasksDAO!!.getHabitsForDate(formattedDate))
-                    TASKS_TAB -> tasksList!!.addAll(tasksDAO!!.getTasksForDate(formattedDate))
-                    else -> {}
-                }
+                tasksList!!.addAll(tasksDAO!!.getTasksForDate(formattedDate))
             }
             if (isAdded && isVisible) {  // Check if the fragment is still added and visible before updating the UI
-                setupRecyclerViewAdapter()
-                when (getSelectedTabType()) {
-                    HABITS_TAB -> habitsAdapter?.notifyDataSetChanged()
-                    TASKS_TAB -> tasksAdapter?.notifyDataSetChanged()
-                }
-                updateRecyclerViewVisibility(getSelectedTabType())
+                tasksAdapter = TasksAdapter(tasksList ?: mutableListOf(), requireContext())
+                binding?.recylerViewTasks?.layoutManager = LinearLayoutManager(context)
+                binding?.recylerViewTasks?.adapter = tasksAdapter
+
+                tasksAdapter?.notifyDataSetChanged()
+                updateRecyclerViewVisibility()
             }
         }
     }
 
-    private fun updateRecyclerViewVisibility(selectedType: Int) {
-        if (selectedType == 0) {
-            if (tasksList!!.isNotEmpty()) {
-                binding!!.emptyState.isVisible = false
-                binding!!.recylerViewTasks.isVisible = true
-            } else {
-                binding!!.emptyState.isVisible = true
-                binding!!.recylerViewTasks.isVisible = false
-            }
+    private fun updateRecyclerViewVisibility() {
+
+        if (tasksList!!.isNotEmpty()) {
+            binding!!.emptyState.isVisible = false
+            binding!!.recylerViewTasks.isVisible = true
         } else {
-            if (habitsList!!.isNotEmpty()) {
-                binding!!.emptyState.isVisible = false
-                binding!!.recylerViewTasks.isVisible = true
-            } else {
-                binding!!.emptyState.isVisible = true
-                binding!!.recylerViewTasks.isVisible = false
-            }
+            binding!!.emptyState.isVisible = true
+            binding!!.recylerViewTasks.isVisible = false
         }
+
+//        if (selectedType == 0) {
+//            if (tasksList!!.isNotEmpty()) {
+//                binding!!.emptyState.isVisible = false
+//                binding!!.recylerViewTasks.isVisible = true
+//            } else {
+//                binding!!.emptyState.isVisible = true
+//                binding!!.recylerViewTasks.isVisible = false
+//            }
+//        } else {
+//            if (habitsList!!.isNotEmpty()) {
+//                binding!!.emptyState.isVisible = false
+//                binding!!.recylerViewTasks.isVisible = true
+//            } else {
+//                binding!!.emptyState.isVisible = true
+//                binding!!.recylerViewTasks.isVisible = false
+//            }
+//        }
     }
 
     private fun getMonthIndex(monthName: String): Int {

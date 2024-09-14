@@ -39,8 +39,8 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tabMode: TabLayout = binding.tabModeFAB
-        OnTabSelection(tabMode)
+//        val tabMode: TabLayout = binding.tabModeFAB
+//        OnTabSelection(tabMode)
 
         binding.crossButton.setOnClickListener{
             dismiss()
@@ -63,45 +63,45 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
-    fun OnTabSelection(tabMode:TabLayout){
-        try {
-            tabMode.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab?) {
-                    val fragment = when (tab?.position) {
-                        0 -> AddTaskFragment.newInstance()
-                        1 -> AddHabitsFragment.newInstance()
-                        else -> null
-                    }
-
-                    fragment?.let {
-                        val containerView = binding.fragmentContainerBottomSheet
-                        try {
-                            if (containerView != null) {
-                                try {
-                                    val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
-                                    transaction.replace(R.id.fragmentContainerBottomSheet, it)
-                                    transaction.addToBackStack(null)
-                                    transaction.commit()
-                                } catch (e: Exception) {
-                                    Log.e("BottomSheetFragment", "Error replacing fragment: ${e.message}", e)
-                                }
-                            } else {
-                                Log.e("BottomSheetFragment", "Fragment container not found")
-                            }
-                        } catch (e: Exception) {
-                            Log.e("BottomSheetFragment", "Error: ${e.message}", e)
-                        }
-                    }
-                }
-
-                override fun onTabUnselected(tab: TabLayout.Tab?) {}
-
-                override fun onTabReselected(tab: TabLayout.Tab?) {}
-            })
-        } catch (e: Exception) {
-            Log.e("BottomSheetFragment", "Error: ${e.message}", e)
-        }
-    }
+//    fun OnTabSelection(tabMode:TabLayout){
+//        try {
+//            tabMode.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+//                override fun onTabSelected(tab: TabLayout.Tab?) {
+//                    val fragment = when (tab?.position) {
+//                        0 -> AddTaskFragment.newInstance()
+//                        1 -> AddHabitsFragment.newInstance()
+//                        else -> null
+//                    }
+//
+//                    fragment?.let {
+//                        val containerView = binding.fragmentContainerBottomSheet
+//                        try {
+//                            if (containerView != null) {
+//                                try {
+//                                    val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
+//                                    transaction.replace(R.id.fragmentContainerBottomSheet, it)
+//                                    transaction.addToBackStack(null)
+//                                    transaction.commit()
+//                                } catch (e: Exception) {
+//                                    Log.e("BottomSheetFragment", "Error replacing fragment: ${e.message}", e)
+//                                }
+//                            } else {
+//                                Log.e("BottomSheetFragment", "Fragment container not found")
+//                            }
+//                        } catch (e: Exception) {
+//                            Log.e("BottomSheetFragment", "Error: ${e.message}", e)
+//                        }
+//                    }
+//                }
+//
+//                override fun onTabUnselected(tab: TabLayout.Tab?) {}
+//
+//                override fun onTabReselected(tab: TabLayout.Tab?) {}
+//            })
+//        } catch (e: Exception) {
+//            Log.e("BottomSheetFragment", "Error: ${e.message}", e)
+//        }
+//    }
 
     @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.O)
     override fun onResume() {
