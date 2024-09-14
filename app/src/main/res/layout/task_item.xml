@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="10dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/secondary"
         app:cardElevation="0dp"
         app:cardUseCompatPadding="true">
 
@@ -50,7 +50,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/plusjakarta_medium"
                         android:text="@string/Category"
-                        android:textColor="@color/black"
+                        android:textColor="@color/textsecondary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
 
@@ -63,7 +63,7 @@
                         android:textStyle="bold"
                         android:text="Title"
                         android:fontFamily="@font/plusjakarta_semibold"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/textprimary" />
 
                     <TextView
                         android:id="@+id/taskDescription"
@@ -73,7 +73,7 @@
                         android:layout_marginTop="6dp"
                         android:text="Description"
                         android:fontFamily="@font/plusjakarta_regular"
-                        android:textColor="@color/black"
+                        android:textColor="@color/textsecondary"
                         android:visibility="gone"/>
 
                     <LinearLayout
@@ -135,7 +135,7 @@
                 android:layout_marginEnd="12dp"
                 android:layout_marginBottom="5dp"
                 android:background="@drawable/category_bg"
-                android:backgroundTint="@color/bg_white"
+                android:backgroundTint="@color/secondary"
                 android:gravity="center"
                 android:padding="6dp"
                 app:layout_constraintTop_toBottomOf="@id/info_container"
@@ -155,7 +155,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/plusjakarta_medium"
                     android:text="11:00"
-                    android:textColor="@color/black"
+                    android:textColor="@color/textsecondary"
                     android:textSize="12sp" />
             </LinearLayout>
 

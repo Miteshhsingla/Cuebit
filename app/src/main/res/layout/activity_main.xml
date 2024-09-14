@@ -42,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:labelVisibilityMode="unlabeled"
-                android:backgroundTint="@color/white"
+                android:backgroundTint="@color/secondary"
                 app:itemIconTint="@drawable/navigation_view_colored"
                 app:menu="@menu/bottom_nav_menu" />
         </FrameLayout>

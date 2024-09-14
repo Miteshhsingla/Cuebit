@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:backgroundTint="@color/bg_white"
+    android:background="@color/primary"
     android:layout_gravity="center"
     >
 
@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:text="Create new Category"
             android:textSize="18sp"
-            android:textColor="@color/black"
+            android:textColor="@color/textprimary"
             android:layout_weight="0.6"
             android:fontFamily="@font/plusjakarta_semibold"/>
 
@@ -31,21 +31,22 @@
             />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/editfield_bg"
-        android:orientation="vertical">
+
 
         <EditText
             android:id="@+id/category_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/EditTextField"
+            android:background="@color/secondary"
+            android:textSize="16sp"
+            android:fontFamily="@font/plusjakarta_medium"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/textsecondary"
             android:layout_margin="20dp"
             android:padding="16dp"
             android:hint="Enter Category"/>
-    </LinearLayout>
 
     <TextView
         android:id="@+id/SetCategoryButton"

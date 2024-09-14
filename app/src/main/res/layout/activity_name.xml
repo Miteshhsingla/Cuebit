@@ -6,13 +6,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="@color/bg_white"
+    android:background="@color/secondary"
     tools:context=".ui.NameActivity">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        />
 
 
 
@@ -38,9 +33,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="@color/bg_white"
+            android:background="@color/secondary"
             android:fontFamily="@font/plusjakarta_medium"
             android:hint="What should we call you?"
+            android:textColor="@color/textsecondary"
             android:padding="12dp"
             android:textAlignment="center"
             android:inputType="textPersonName" />

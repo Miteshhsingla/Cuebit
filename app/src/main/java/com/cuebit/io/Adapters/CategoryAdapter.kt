@@ -43,7 +43,7 @@ class CategoryAdapter(var categoryList: MutableList<Category>, private var tasks
         } else {
             holder.block.setBackgroundColor(Color.TRANSPARENT)
             holder.categoryName.setBackgroundResource(R.drawable.category_bg)
-            holder.categoryName.setTextColor(Color.BLACK)
+            holder.categoryName.setTextColor( context.getResources().getColor(R.color.textsecondary))
         }
 
         holder.itemView.setOnClickListener {
